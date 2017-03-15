@@ -74,9 +74,6 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	GetWindowRect(m_hWnd, &window);
 
 
-	//initialise AntTweakbar
-	TwInit(TW_DIRECT3D11, _pd3dDevice);
-	TwWindowSize(window.left, window.bottom);
 
 	// Create other render resources here
 	m_states = new CommonStates(_pd3dDevice);
@@ -91,6 +88,10 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	UINT height = rc.bottom - rc.top;
 	float AR = (float)width / (float)height;
 
+	//initialise AntTweakbar
+	TwInit(TW_DIRECT3D11, _pd3dDevice);
+	TwWindowSize(width, height);
+	
 	//create a base camera
 	m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
 	m_cam->SetPos(Vector3(0.0f, 100.0f, 100.0f));
@@ -109,7 +110,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	pTweakBar = TwNewBar("Boid Manager");
 
 	//add Boid Manager
-	pBoidManager = new BoidManager(25, _pd3dDevice);
+	pBoidManager = new BoidManager(200, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls
@@ -251,10 +252,6 @@ void Game::PlayTick()
 			m_GD->m_GS = GS_PLAY_MAIN_CAM;
 		}
 	}
-	/*if ((m_keyboardState[DIK_SPACE] & 0x80) && !(m_prevKeyboardState[DIK_SPACE] & 0x80))
-	{
-
-	}*/
 
 	//update all objects
 	for (list<GameObject *>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
