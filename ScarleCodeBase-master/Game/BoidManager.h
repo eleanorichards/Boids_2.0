@@ -58,7 +58,7 @@ private:
 	float cohesionModifier = 1;
 	
 	float maxSpeed = 15.0f;
-	float maxForce = 2.0f;
+	float maxForce = 0.5f;
 
 	int numOfBoids = 0;
 	int max = 10;

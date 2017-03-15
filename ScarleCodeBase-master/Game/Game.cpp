@@ -111,7 +111,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 
 
 	//add Boid Manager
-	pBoidManager = new BoidManager(25, _pd3dDevice);
+	pBoidManager = new BoidManager(200, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls
