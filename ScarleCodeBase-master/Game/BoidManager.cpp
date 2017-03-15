@@ -7,12 +7,29 @@
 #include <iostream>
 #include <stdio.h>
 
+#include "AntTweakBar.h"
+
+
 BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 {
 	for (int i = 0; i < _numOfBoids; i++)
 	{
 		m_Boids.push_back(new Boid(_pd3dDevice));
 	}
+
+	TwBar* pTweakBar;
+	pTweakBar = TwGetBarByName("Boid Manager");
+
+	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
+	TwAddVarRW(pTweakBar, "Separation", TW_TYPE_FLOAT, &separationRadius, "min=0 max=50 step=0.5 group=Boid");
+	TwAddVarRW(pTweakBar, "Cohesion", TW_TYPE_FLOAT, &cohesionRadius, "min=0 max=50 step=0.5 group=Boid");
+	TwAddVarRW(pTweakBar, "Alignment", TW_TYPE_FLOAT, &alignmentRadius, "min=0 max=50 step=0.5 group=Boid");
+
+	TwAddVarRW(pTweakBar, "Sep", TW_TYPE_FLOAT, &separationModifier, "min=0 max=5 step=0.1");
+	TwAddVarRW(pTweakBar, "Coh", TW_TYPE_FLOAT, &cohesionModifier, "min=0 max=5 step=0.1");
+	TwAddVarRW(pTweakBar, "Ali", TW_TYPE_FLOAT, &alignmentModifier, "min=0 max=5 step=0.1");
+
+	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
 }
 
 BoidManager::~BoidManager()
@@ -25,10 +42,15 @@ void BoidManager::Tick(GameData * _GD)
 	//Spawn in boids
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		if (!(*it)->isAlive() && placeBoid && it != m_Boids.end())
+		if (!(*it)->isAlive() && it != m_Boids.end() && desiredBoids > boidsInScene)
 		{
+			//Random start l.ocation between min and max
+			initialLocation = Vector3((float)(rand() % (startMax - startMin + 1) + startMin), 
+				((float)(rand() % (startMax - startMin + 1) + startMin)), 
+				((float)(rand() % (startMax - startMin + 1) + startMin)));
+
 			(*it)->Spawn(initialLocation, 0.5*Vector3::One, _GD);
-			placeBoid = false;
+			boidsInScene++;
 		}
 		if ((*it)->isAlive())
 		{
@@ -50,28 +72,11 @@ void BoidManager::Draw(DrawData * _DD)
 
 void BoidManager::getUserInput(GameData * _GD)
 {
-	if (_GD->m_keyboardState[DIK_Q] && placeBoid == false)
+	/*if (_GD->m_keyboardState[DIK_Q] && placeBoid == false)
 	{
-		initialLocation = Vector3(((float)(rand() % startMax) - startMin), ((float)(rand() % startMax) - startMin), (((float)(rand() % startMax) - startMin)));
 		boidsInScene++;
 		placeBoid = true;
-	}
-	if (alignmentModifier >= 1 || separationModifier >= -1 || cohesionModifier >= -1)
-	{
-
-		if (_GD->m_keyboardState[DIK_1] && !(_GD->m_prevKeyboardState[DIK_1]))
-			alignmentModifier -= 0.5f;
-		else if (_GD->m_keyboardState[DIK_2] && !(_GD->m_prevKeyboardState[DIK_2]))
-			alignmentModifier += 0.5f;
-		else if (_GD->m_keyboardState[DIK_3] && !(_GD->m_prevKeyboardState[DIK_3]))
-			separationRadius -= 0.5f;
-		else if (_GD->m_keyboardState[DIK_4] && !(_GD->m_prevKeyboardState[DIK_4]))
-			separationRadius += 0.5f;
-		else if (_GD->m_keyboardState[DIK_5] && !(_GD->m_prevKeyboardState[DIK_5]))
-			cohesionModifier -= 0.5f;
-		else if (_GD->m_keyboardState[DIK_6] && !(_GD->m_prevKeyboardState[DIK_6]))
-			cohesionModifier += 0.5f;
-	}
+	}*/
 	if (_GD->m_keyboardState[DIK_9] && !(_GD->m_prevKeyboardState[DIK_9]))
 	{
 		for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
@@ -204,41 +209,3 @@ Vector3 BoidManager::alignment(Boid* _boid)
 }
 
 
-std::string BoidManager::getNumOfBoidsAsString()
-{
-	std::stringstream bString;
-	bString << boidsInScene;
-	return bString.str();
-}
-
-std::string BoidManager::getAlignmentAsString()
-{
-	std::stringstream aString;
-	aString << alignmentModifier;
-	return aString.str();
-}
-
-
-std::string BoidManager::getSeparationAsString()
-{
-	std::stringstream bString;
-	bString << separationRadius;
-	return bString.str();
-}
-
-
-std::string BoidManager::getCohesionAsString()
-{
-	std::stringstream cString;
-	cString << cohesionModifier;
-	return cString.str();
-}
-
-void BoidManager::DrawScreenSpace(DrawData2D* _DD2D)
-{
-	/*TextGO2D boidNumText("Boids: (Q)" + getNumOfBoidsAsString() + "\nAlignment (1-2): " + getAlignmentAsString() + "\nSeparation (3-4): " + getSeparationAsString() + "\nCohesion (5-6): " + getCohesionAsString());
-	boidNumText.SetPos(Vector2(0.0f, 60.0f));
-	boidNumText.SetColour(Color((float*)&DirectX::Colors::Green));
-	boidNumText.SetScale(0.4f);
-	boidNumText.Draw(_DD2D);	*/
-}

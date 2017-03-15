@@ -12,8 +12,6 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 
 	m_fudge = Matrix::CreateRotationY(XM_PIDIV2);
 
-
-
 	//All the Draw stuff
 	int vert = 0;
 	int numVerts = 3;
@@ -83,10 +81,10 @@ void Boid::Tick(GameData * _GD)
 {
 	if (m_alive)
 	{
-		if (m_pos.x >= 220 || m_pos.x <= -220 || m_pos.y >= 220 || m_pos.y <= -220 || m_pos.z >= 220 || m_pos.z <= -220)
+		if (m_pos.x >= 150 || m_pos.x <= -150 || m_pos.y >= 150 || m_pos.y <= -150 || m_pos.z >= 150 || m_pos.z <= -150)
 		{
 			//move to opposite end of box
-			m_pos *= (-0.9);
+			m_pos *= (-0.95);
 		}
 		else 
 		{

@@ -78,11 +78,6 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	TwInit(TW_DIRECT3D11, _pd3dDevice);
 	TwWindowSize(window.left, window.bottom);
 
-	//create antTweakbar
-	TwBar* pTweakBar;
-	pTweakBar = TwNewBar("Boid Manager");
-	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &numOfBoids, "");
-
 	// Create other render resources here
 	m_states = new CommonStates(_pd3dDevice);
 
@@ -109,17 +104,20 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	m_camControl->SetPos(Vector3(0.0f, 0.0f, 0.0f));
 	m_GameObjects.push_back(m_camControl);
 
+	//create antTweakbar
+	TwBar* pTweakBar;
+	pTweakBar = TwNewBar("Boid Manager");
 
 	//add Boid Manager
-	pBoidManager = new BoidManager(200, _pd3dDevice);
+	pBoidManager = new BoidManager(25, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls
-	Walls* pWall = new Walls();
-	pWall->init(11, _pd3dDevice);
-	pWall->SetPos(Vector3::Zero);
-	pWall->SetScale(110.0f);
-	m_GameObjects.push_back(pWall);
+	//Walls* pWall = new Walls();
+	//pWall->init(11, _pd3dDevice);
+	//pWall->SetPos(Vector3::Zero);
+	//pWall->SetScale(110.0f);
+	//m_GameObjects.push_back(pWall);
 
 	//add a secondary camera
 	m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, m_camControl, Vector3::UnitY, Vector3(0.0f, 30.0f, 30.0f));
@@ -133,9 +131,8 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	m_DD->m_light = m_light;
 
 	//add random content to show the various what you've got here
-	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.05f * Vector3::One);
+	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.01f * Vector3::One);
 	m_GameObjects.push_back(terrain);
-	
 
 };
 
@@ -216,6 +213,7 @@ bool Game::Tick()
 	GetWindowRect(m_hWnd, &window);*/
 	//SetCursorPos((window.left + window.right) >> 1, (window.bottom + window.top) >> 1);
 
+	
 	//calculate frame time-step dt for passing down to game objects
 	DWORD currentTime = GetTickCount();
 	m_GD->m_dt = min((float)(currentTime - m_playTime) / 1000.0f, 0.1f);
@@ -287,6 +285,7 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 	VBGO::UpdateConstantBuffer(m_DD);
 
 	
+	TwDraw();
 
 	//draw all objects
 	for (list<GameObject *>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
@@ -301,11 +300,11 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 	}
 	m_DD2D->m_Sprites->End();
 
+	
 	//drawing text screws up the Depth Stencil State, this puts it back again!
 	_pd3dImmediateContext->OMSetDepthStencilState(m_states->DepthDefault(), 0);
 	
 	
-	TwDraw();
 }
 
 ;

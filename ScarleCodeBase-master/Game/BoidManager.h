@@ -17,7 +17,7 @@ public:
 	~BoidManager();
 	virtual void Tick(GameData* _GD) override;
 	virtual void Draw(DrawData* _DD) override;
-	virtual void DrawScreenSpace(DrawData2D* _DD2D);
+	//virtual void DrawScreenSpace(DrawData2D* _DD2D);
 
 	void getUserInput(GameData * _GD);
 	void moveBoid(Boid* _boid, GameData * _GD);
@@ -29,15 +29,7 @@ public:
 	Vector3 seek(Vector3 _target, Vector3 _pos, Vector3 _vel);
 
 	//GETTERS
-	int getNumOfBoids() { return numOfBoids; }
-	
-	std::string getNumOfBoidsAsString();
-	std::string getAlignmentAsString();
-	std::string getSeparationAsString();
-	std::string getCohesionAsString();
-
-	//SETTERS
-	void setNumOfBoids(int _numOfBoids) { numOfBoids = _numOfBoids; }
+	int getNumOfBoids() { return boidsInScene; }
 
 private:
 	list<Boid*> m_Boids;
@@ -47,26 +39,25 @@ private:
 	Vector3 travelDirection;
 	Vector3 randomDirection;
 
-
 	//alignment and cohesion radius should be similar/the same
 	float alignmentRadius = 25;
 	float cohesionRadius = 25;
 	float separationRadius = 10;
 
-	float alignmentModifier = 1;
+	float alignmentModifier = 1.5;
 	float separationModifier = 1;
 	float cohesionModifier = 1;
 	
 	float maxSpeed = 15.0f;
 	float maxForce = 0.5f;
 
-	int numOfBoids = 0;
+	float boidsInScene = 0;
+	float desiredBoids = 0;
+
 	int max = 10;
 	int min = -10;
-	int startMax = -50;
-	int startMin = 100;
-	int boidsInScene = 0;
-	int menuChoice = 0;
+	int startMax = 100;
+	int startMin = -100;
 
 	bool placeBoid = false;
 
