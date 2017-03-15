@@ -12,9 +12,10 @@ public:
 	void SetAlive(bool isAlive);
 	void setVelocity(Vector3 velocity);
 	void setPosition(Vector3 position);
-	void setRotation(Vector3 velocity);
+	void setRotation();
 	void setAcceleration(Vector3 _acceleration);
 	void setSpeed(float _speed) { speed = _speed; };
+	void setColour(float r, float g, float b);
 
 	virtual void Tick(GameData* _GD) override;
 	virtual void Draw(DrawData* _DD) override;
@@ -32,15 +33,14 @@ private:
 	Vector3 m_acc;
 	Vector3 travelDirection;
 	Vector3 initialDirection;
-	Vector3 acceleration;
 
 	bool inBoundingBox = true;
 	bool m_alive;
 	int max = 100;
 	int min = 50;
-	//so they don't speed around everywhere
-	float maxAcceleration = 7;
-	float minAcceleration = -7;
+
+	float maxAcceleration = 10;
+	float minAcceleration = -10;
 	float speed = 1;
 
 

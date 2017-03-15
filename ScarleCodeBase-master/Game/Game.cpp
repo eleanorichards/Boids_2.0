@@ -14,7 +14,7 @@
 #include "BoidManager.h"
 #include "TextGO2D.h"
 
-//#include "AntTweakBar.h"
+#include "AntTweakBar.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -75,13 +75,13 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 
 
 	//initialise AntTweakbar
-//	TwInit(TW_DIRECT3D11, _pd3dDevice);
-//	TwWindowSize(window.left, window.bottom);
+	TwInit(TW_DIRECT3D11, _pd3dDevice);
+	TwWindowSize(window.left, window.bottom);
 
 	//create antTweakbar
-	/*TwBar* pTweakBar;
+	TwBar* pTweakBar;
 	pTweakBar = TwNewBar("Boid Manager");
-	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &numOfBoids, "");*/
+	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &numOfBoids, "");
 
 	// Create other render resources here
 	m_states = new CommonStates(_pd3dDevice);
@@ -135,6 +135,8 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	//add random content to show the various what you've got here
 	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.05f * Vector3::One);
 	m_GameObjects.push_back(terrain);
+	
+
 };
 
 
@@ -251,6 +253,10 @@ void Game::PlayTick()
 			m_GD->m_GS = GS_PLAY_MAIN_CAM;
 		}
 	}
+	/*if ((m_keyboardState[DIK_SPACE] & 0x80) && !(m_prevKeyboardState[DIK_SPACE] & 0x80))
+	{
+
+	}*/
 
 	//update all objects
 	for (list<GameObject *>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
@@ -276,7 +282,6 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 		m_DD->m_cam = m_TPScam;
 	}
 
-	//TwDraw();
 
 	//update the constant buffer for the rendering of VBGOs
 	VBGO::UpdateConstantBuffer(m_DD);
@@ -298,6 +303,9 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 
 	//drawing text screws up the Depth Stencil State, this puts it back again!
 	_pd3dImmediateContext->OMSetDepthStencilState(m_states->DepthDefault(), 0);
+	
+	
+	TwDraw();
 }
 
 ;

@@ -10,6 +10,10 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	Matrix rotMat;
 	rotMat = Matrix::Identity;
 
+	m_fudge = Matrix::CreateRotationY(XM_PIDIV2);
+
+
+
 	//All the Draw stuff
 	int vert = 0;
 	int numVerts = 3;
@@ -56,6 +60,9 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	delete[] indices;    //this is no longer needed as this is now in the index Buffer
 	delete[] m_vertices; //this is no longer needed as this is now in the Vertex Buffer
 	m_vertices = nullptr;
+	
+	//set m_up
+	m_up = Vector3::Transform(Vector3::Up, m_fudge.Invert() * m_worldMat) - m_pos;
 }
 
 Boid::~Boid()
@@ -83,12 +90,11 @@ void Boid::Tick(GameData * _GD)
 		}
 		else 
 		{
-			//setAcceleration((m_vel) * _GD->m_dt);
-			m_pos += (m_vel)* _GD->m_dt;
+			setAcceleration((m_vel) * _GD->m_dt);
+			m_pos += m_acc;
 		}
-		setRotation(m_vel);
+		setRotation();
 	}
-	VBGO::Tick(_GD);
 }
 
 void Boid::Draw(DrawData * _DD)
@@ -115,18 +121,12 @@ void Boid::setPosition(Vector3 position)
 	m_pos = position;
 }
 
-void Boid::setRotation(Vector3 velocity)
+void Boid::setRotation()
 {
-	float rotSpeed = 0.1f;
-
-	float _pitch = velocity.z;
-	float _roll = velocity.y;
-	float _yaw = velocity.x;
-	//Matrix rotMat = Matrix::CreateFromYawPitchRoll(_yaw, _pitch, _roll);
-	
-	m_yaw = velocity.x;
-	//Quaternion rotQuat;
-	//rotQuat = Quaternion(_yaw, _roll, _pitch, 1.0f);
+	Matrix scaleMat = Matrix::CreateScale(m_scale);
+	Matrix rotTransMat = Matrix::CreateWorld(m_pos, m_vel, m_up);
+	Matrix transMat = Matrix::CreateTranslation(m_pos);
+	m_worldMat = m_fudge * scaleMat * rotTransMat * transMat;
 
 }
 
@@ -159,6 +159,11 @@ void Boid::setAcceleration(Vector3 _acceleration)
 	}
 
 	m_acc = _acceleration;
+}
+
+void Boid::setColour(float r, float g, float b)
+{
+	m_vertices[1].Color = Color(r, g, b, 1.0f);
 }
 
 

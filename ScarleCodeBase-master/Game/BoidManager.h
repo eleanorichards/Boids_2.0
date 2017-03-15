@@ -36,9 +36,6 @@ public:
 	std::string getSeparationAsString();
 	std::string getCohesionAsString();
 
-
-
-
 	//SETTERS
 	void setNumOfBoids(int _numOfBoids) { numOfBoids = _numOfBoids; }
 
@@ -50,17 +47,18 @@ private:
 	Vector3 travelDirection;
 	Vector3 randomDirection;
 
-	float alignmentModifier = 1;
-	float separationModifier = 1;
-	float cohesionModifier = 1;
 
 	//alignment and cohesion radius should be similar/the same
 	float alignmentRadius = 25;
 	float cohesionRadius = 25;
 	float separationRadius = 10;
 
+	float alignmentModifier = 1;
+	float separationModifier = 1;
+	float cohesionModifier = 1;
+	
 	float maxSpeed = 15.0f;
-	float maxForce = 5.0f;
+	float maxForce = 2.0f;
 
 	int numOfBoids = 0;
 	int max = 10;

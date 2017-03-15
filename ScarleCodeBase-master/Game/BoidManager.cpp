@@ -27,7 +27,7 @@ void BoidManager::Tick(GameData * _GD)
 	{
 		if (!(*it)->isAlive() && placeBoid && it != m_Boids.end())
 		{
-			(*it)->Spawn(initialLocation, Vector3::One, _GD);
+			(*it)->Spawn(initialLocation, 0.5*Vector3::One, _GD);
 			placeBoid = false;
 		}
 		if ((*it)->isAlive())
@@ -72,6 +72,14 @@ void BoidManager::getUserInput(GameData * _GD)
 		else if (_GD->m_keyboardState[DIK_6] && !(_GD->m_prevKeyboardState[DIK_6]))
 			cohesionModifier += 0.5f;
 	}
+	if (_GD->m_keyboardState[DIK_9] && !(_GD->m_prevKeyboardState[DIK_9]))
+	{
+		for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+		{
+			(*it)->setColour(0, 1, 0);
+		}
+	}
+
 }
 
 void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
@@ -228,9 +236,9 @@ std::string BoidManager::getCohesionAsString()
 
 void BoidManager::DrawScreenSpace(DrawData2D* _DD2D)
 {
-	TextGO2D boidNumText("Boids: (Q)" + getNumOfBoidsAsString() + "\nAlignment (1-2): " + getAlignmentAsString() + "\nSeparation (3-4): " + getSeparationAsString() + "\nCohesion (5-6): " + getCohesionAsString());
+	/*TextGO2D boidNumText("Boids: (Q)" + getNumOfBoidsAsString() + "\nAlignment (1-2): " + getAlignmentAsString() + "\nSeparation (3-4): " + getSeparationAsString() + "\nCohesion (5-6): " + getCohesionAsString());
 	boidNumText.SetPos(Vector2(0.0f, 60.0f));
 	boidNumText.SetColour(Color((float*)&DirectX::Colors::Green));
 	boidNumText.SetScale(0.4f);
-	boidNumText.Draw(_DD2D);	
+	boidNumText.Draw(_DD2D);	*/
 }

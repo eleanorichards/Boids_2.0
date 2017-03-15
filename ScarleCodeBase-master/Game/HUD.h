@@ -13,10 +13,7 @@ public:
 	HUD();
 	~HUD();
 
-	//virtual void Draw(DrawData* _DD) override;
-
-
-	std::string getNumOfBoidsAsString();
+	virtual void Draw(DrawData* _DD) override;
 
 private:
 	std::string currentBoidsString;
