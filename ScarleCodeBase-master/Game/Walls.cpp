@@ -27,93 +27,93 @@ void Walls::init(int _size, ID3D11Device* GD)
 		for (int j = -(m_size - 1) / 2; j<(m_size - 1) / 2; j++)
 		{
 			//top
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)i, 0.5f * (float)(m_size - 1), (float)j);
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)i, 0.5f * (float)(m_size - 1), (float)(j + 1));
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(i + 1), 0.5f * (float)(m_size - 1), (float)j);
 
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(i + 1), 0.5f * (float)(m_size - 1), (float)j);
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)i, 0.5f * (float)(m_size - 1), (float)(j + 1));
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(i + 1), 0.5f * (float)(m_size - 1), (float)(j + 1));
 
 			//back
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)i, (float)j, 0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(i + 1), (float)j, 0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)i, (float)(j + 1), 0.5f * (float)(m_size - 1));
 
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(i + 1), (float)j, 0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(i + 1), (float)(j + 1), 0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)i, (float)(j + 1), 0.5f * (float)(m_size - 1));
 
 			//right
-			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(0.5f * (float)(m_size - 1), (float)i, (float)j);
-			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(0.5f * (float)(m_size - 1), (float)(i + 1), (float)j);
-			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(0.5f * (float)(m_size - 1), (float)i, (float)(j + 1));
 
-			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(0.5f * (float)(m_size - 1), (float)(i + 1), (float)j);
-			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(0.5f * (float)(m_size - 1), (float)(i + 1), (float)(j + 1));
-			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(0.5f * (float)(m_size - 1), (float)i, (float)(j + 1));
 
 			//Bottom
-			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)j, -0.5f * (float)(m_size - 1), (float)i);
-			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(j + 1), -0.5f * (float)(m_size - 1), (float)i);
-			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)j, -0.5f * (float)(m_size - 1), (float)(i + 1));
 
-			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)j, -0.5f * (float)(m_size - 1), (float)(i + 1));
-			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(j + 1), -0.5f * (float)(m_size - 1), (float)i);
-			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.5f);
+			m_vertices[vert].Color = Color(1.0f, 1.0f, 0.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(j + 1), -0.5f * (float)(m_size - 1), (float)(i + 1));
 
 			//front
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)j, (float)i, -0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)j, (float)(i + 1), -0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(j + 1), (float)i, -0.5f * (float)(m_size - 1));
 
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)j, (float)(i + 1), -0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(j + 1), (float)(i + 1), -0.5f * (float)(m_size - 1));
-			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.5f);
+			m_vertices[vert].Color = Color(0.0f, 1.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3((float)(j + 1), (float)i, -0.5f * (float)(m_size - 1));
 
 			//left
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(-0.5f * (float)(m_size - 1), (float)j, (float)i);
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(-0.5f * (float)(m_size - 1), (float)j, (float)(i + 1));
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(-0.5f * (float)(m_size - 1), (float)(j + 1), (float)i);
 
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(-0.5f * (float)(m_size - 1), (float)j, (float)(i + 1));
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(-0.5f * (float)(m_size - 1), (float)(j + 1), (float)(i + 1));
-			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+			m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 0.1f);
 			m_vertices[vert++].Pos = Vector3(-0.5f * (float)(m_size - 1), (float)(j + 1), (float)i);
 
 		}

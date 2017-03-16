@@ -114,11 +114,11 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls
-	//Walls* pWall = new Walls();
-	//pWall->init(11, _pd3dDevice);
-	//pWall->SetPos(Vector3::Zero);
-	//pWall->SetScale(110.0f);
-	//m_GameObjects.push_back(pWall);
+	Walls* pWall = new Walls();
+	pWall->init(11, _pd3dDevice);
+	pWall->SetPos(Vector3::Zero);
+	pWall->SetScale(80.0f);
+	m_GameObjects.push_back(pWall);
 
 	//add a secondary camera
 	m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, m_camControl, Vector3::UnitY, Vector3(0.0f, 30.0f, 30.0f));

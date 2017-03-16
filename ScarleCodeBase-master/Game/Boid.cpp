@@ -14,7 +14,7 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 
 	//All the Draw stuff
 	int vert = 0;
-	int numVerts = 3;
+	int numVerts = 6;
 	m_numPrims = numVerts / 3;
 	m_vertices = new myVertex[numVerts];
 	WORD* indices = new WORD[numVerts];
@@ -26,12 +26,38 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 		m_vertices[i].texCoord = Vector2::One;
 	}
 
-	m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(0, 0, 0);
-	m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(0, 0, 4);
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(5, 0, 2);
+	//X tri
+	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert++].Pos = Vector3(0, -2, 0);
+	m_vertices[vert].Color = Color(1.0f, 0.0f, 0.5f, 1.0f);
+	m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
+	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert++].Pos = Vector3(0, 2, 4);
+
+	//Y tri
+	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert++].Pos = Vector3(0, 2, 0);
+	m_vertices[vert].Color = Color(1.0f, 0.0f, 0.5f, 1.0f);
+	m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
+	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert++].Pos = Vector3(0, -2, 4);
+
+	////left tri
+	//m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+	//m_vertices[vert++].Pos = Vector3(2, 0, 0);
+	//m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 1.0f);
+	//m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
+	//m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
+	//m_vertices[vert++].Pos = Vector3(-2, 0, 0);
+
+	//right tri
+	//m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 1.0f);
+	//m_vertices[vert++].Pos = Vector3(0, 0, -2);
+	//m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 1.0f);
+	//m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
+	//m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 1.0f);
+	//m_vertices[vert++].Pos = Vector3(0, 0, 2);
+
 
 	for (int i = 0; i < m_numPrims; i++)
 	{
@@ -81,7 +107,7 @@ void Boid::Tick(GameData * _GD)
 {
 	if (m_alive)
 	{
-		if (m_pos.x >= 150 || m_pos.x <= -150 || m_pos.y >= 150 || m_pos.y <= -150 || m_pos.z >= 150 || m_pos.z <= -150)
+		if (m_pos.x >= 100 || m_pos.x <= -100 || m_pos.y >= 100 || m_pos.y <= -100 || m_pos.z >= 100 || m_pos.z <= -100)
 		{
 			//move to opposite end of box
 			m_pos *= (-0.95);
