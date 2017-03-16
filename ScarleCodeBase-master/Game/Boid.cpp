@@ -1,6 +1,8 @@
 #include "Boid.h"
 #include "GameData.h"
-#include <iostream>
+
+#include "AntTweakBar.h"
+
 
 Boid::Boid(ID3D11Device * _pd3dDevice) 
 {
@@ -27,19 +29,19 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	}
 
 	//X tri
-	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, -2, 0);
-	m_vertices[vert].Color = Color(1.0f, 0.0f, 0.5f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 0.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
-	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, 2, 4);
 
 	//Y tri
-	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, 2, 0);
-	m_vertices[vert].Color = Color(1.0f, 0.0f, 0.5f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 0.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
-	m_vertices[vert].Color = Color(1.0f, 0.1f, 0.0f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, -2, 4);
 
 	////left tri
@@ -87,6 +89,13 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	
 	//set m_up
 	m_up = Vector3::Transform(Vector3::Up, m_fudge.Invert() * m_worldMat) - m_pos;
+
+	TwBar* pTweakBar;
+	pTweakBar = TwGetBarByName("Boid Manager");
+
+	TwAddVarRW(pTweakBar, "Box size", TW_TYPE_FLOAT, &boxSize, "min=10 max=250 step=1 group=Room");
+	TwAddVarRW(pTweakBar, "Speed", TW_TYPE_FLOAT, &speedModifier, "min=-1 max=100 step=0.1 group=Weight");
+	
 }
 
 Boid::~Boid()
@@ -107,15 +116,22 @@ void Boid::Tick(GameData * _GD)
 {
 	if (m_alive)
 	{
-		if (m_pos.x >= 100 || m_pos.x <= -100 || m_pos.y >= 100 || m_pos.y <= -100 || m_pos.z >= 100 || m_pos.z <= -100)
+		if (m_pos.x >= boxSize || m_pos.x <= -boxSize || m_pos.y >= boxSize || m_pos.y <= -boxSize || m_pos.z >= boxSize || m_pos.z <= -boxSize)
 		{
 			//move to opposite end of box
 			m_pos *= (-0.95);
 		}
 		else 
 		{
-			setAcceleration((m_vel) * _GD->m_dt);
-			m_pos += m_acc;
+			if (is2D)
+			{
+				m_pos.y = 0.0f;
+			}
+			else
+			{
+				setAcceleration((m_vel) * _GD->m_dt);
+				m_pos += m_acc;	 
+			}
 		}
 		setRotation();
 	}
@@ -137,7 +153,7 @@ void Boid::SetAlive(bool isAlive)
 //limit and then set velocity
 void Boid::setVelocity(Vector3 velocity)
 {
-	m_vel = velocity;
+	m_vel = velocity + Vector3::One*(speedModifier / 10);
 }
 
 void Boid::setPosition(Vector3 position)
@@ -157,29 +173,29 @@ void Boid::setRotation()
 void Boid::setAcceleration(Vector3 _acceleration)
 {
 	//cap acceleration in any direction to the set MAX
-	if (_acceleration.x > maxAcceleration)
+	if (_acceleration.x > accelerationLimit)
 	{
-		_acceleration.x = maxAcceleration;
+		_acceleration.x = accelerationLimit;
 	}
-	if (_acceleration.y > maxAcceleration)
+	if (_acceleration.y > accelerationLimit)
 	{
-		_acceleration.y = maxAcceleration;
+		_acceleration.y = accelerationLimit;
 	}
-	if (_acceleration.z > maxAcceleration)
+	if (_acceleration.z > accelerationLimit)
 	{
-		_acceleration.z = maxAcceleration;
+		_acceleration.z = accelerationLimit;
 	}
-	if (_acceleration.x < minAcceleration)
+	if (_acceleration.x < -accelerationLimit)
 	{
-		_acceleration.x = minAcceleration;
+		_acceleration.x = -accelerationLimit;
 	}
-	if (_acceleration.y < minAcceleration)
+	if (_acceleration.y < -accelerationLimit)
 	{
-		_acceleration.y = minAcceleration;
+		_acceleration.y = -accelerationLimit;
 	}
-	if (_acceleration.z < minAcceleration)
+	if (_acceleration.z < -accelerationLimit)
 	{
-		_acceleration.z = minAcceleration;
+		_acceleration.z = -accelerationLimit;
 	}
 
 	m_acc = _acceleration;

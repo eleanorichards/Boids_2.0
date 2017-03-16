@@ -19,6 +19,12 @@
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+void TW_CALL RunCB(void *_game)
+{
+	Game* game = (Game*) _game;
+	game->set2D(true);
+}
+
 Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance) 
 {
 	//set up audio
@@ -94,7 +100,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	
 	//create a base camera
 	m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
-	m_cam->SetPos(Vector3(0.0f, 100.0f, 100.0f));
+	m_cam->SetPos(Vector3(0.0f, 500.0f, 100.0f));
 	m_GameObjects.push_back(m_cam);
 
 	//create a base light
@@ -109,16 +115,17 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	TwBar* pTweakBar;
 	pTweakBar = TwNewBar("Boid Manager");
 
+
 	//add Boid Manager
-	pBoidManager = new BoidManager(200, _pd3dDevice);
+	pBoidManager = new BoidManager(20, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls
-	Walls* pWall = new Walls();
-	pWall->init(11, _pd3dDevice);
-	pWall->SetPos(Vector3::Zero);
-	pWall->SetScale(80.0f);
-	m_GameObjects.push_back(pWall);
+	//Walls* pWall = new Walls();
+	//pWall->init(11, _pd3dDevice);
+	//pWall->SetPos(Vector3::Zero);
+	//pWall->SetScale(80.0f);
+	//m_GameObjects.push_back(pWall);
 
 	//add a secondary camera
 	m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, m_camControl, Vector3::UnitY, Vector3(0.0f, 30.0f, 30.0f));
@@ -135,6 +142,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.01f * Vector3::One);
 	m_GameObjects.push_back(terrain);
 
+	TwAddButton(pTweakBar, "2D", RunCB, this, "label=set2D");
 };
 
 
@@ -260,10 +268,6 @@ void Game::PlayTick()
 	}
 }
 
-void Game::displayHUD(DrawData2D * _DD)
-{
-	
-}
 
 void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext) 
 {
@@ -302,6 +306,11 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 	_pd3dImmediateContext->OMSetDepthStencilState(m_states->DepthDefault(), 0);
 	
 	
+}
+
+void Game::set2D(bool _is2D)
+{
+	pBoidManager->set2D(_is2D);
 }
 
 ;

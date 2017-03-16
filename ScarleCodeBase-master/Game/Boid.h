@@ -9,6 +9,11 @@ public:
 	~Boid();
 
 	void Spawn(Vector3 _pos, Vector3 _scale, GameData* _GD);
+
+	virtual void Tick(GameData* _GD) override;
+	virtual void Draw(DrawData* _DD) override;
+
+	//SETTERS
 	void SetAlive(bool isAlive);
 	void setVelocity(Vector3 velocity);
 	void setPosition(Vector3 position);
@@ -16,10 +21,9 @@ public:
 	void setAcceleration(Vector3 _acceleration);
 	void setSpeed(float _speed) { speed = _speed; };
 	void setColour(float r, float g, float b);
+	void set2D(bool _is2D) { is2D = _is2D; };
 
-	virtual void Tick(GameData* _GD) override;
-	virtual void Draw(DrawData* _DD) override;
-
+	//GETTERS
 	Vector3 getVelocity() { return m_vel; }
 	Vector3 getAccleration() { return m_acc; }
 	
@@ -36,12 +40,14 @@ private:
 
 	bool inBoundingBox = true;
 	bool m_alive;
+	bool is2D = false;
 	int max = 100;
 	int min = 50;
 
-	float maxAcceleration = 10;
-	float minAcceleration = -10;
+	float boxSize = 150;
+	float accelerationLimit = 10;
 	float speed = 1;
+	float speedModifier = 0.0f;
 
 
 	myVertex* m_vertices;

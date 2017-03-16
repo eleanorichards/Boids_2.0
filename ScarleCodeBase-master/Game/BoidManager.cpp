@@ -1,10 +1,6 @@
 #include "BoidManager.h"
 #include <dinput.h>
 #include "GameData.h"
-#include <sstream>
-#include "TextGO2D.h"
-#include "DrawData2D.h"
-#include <iostream>
 #include <stdio.h>
 
 #include "AntTweakBar.h"
@@ -20,14 +16,18 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* pTweakBar;
 	pTweakBar = TwGetBarByName("Boid Manager");
 
-	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
-	TwAddVarRW(pTweakBar, "Separation", TW_TYPE_FLOAT, &separationRadius, "min=0 max=50 step=0.5 group=Boid");
-	TwAddVarRW(pTweakBar, "Cohesion", TW_TYPE_FLOAT, &cohesionRadius, "min=0 max=50 step=0.5 group=Boid");
-	TwAddVarRW(pTweakBar, "Alignment", TW_TYPE_FLOAT, &alignmentRadius, "min=0 max=50 step=0.5 group=Boid");
+	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=300 step=1 group=Boid");
 
-	TwAddVarRW(pTweakBar, "Sep", TW_TYPE_FLOAT, &separationModifier, "min=0 max=5 step=0.1");
-	TwAddVarRW(pTweakBar, "Coh", TW_TYPE_FLOAT, &cohesionModifier, "min=0 max=5 step=0.1");
-	TwAddVarRW(pTweakBar, "Ali", TW_TYPE_FLOAT, &alignmentModifier, "min=0 max=5 step=0.1");
+	TwAddVarRW(pTweakBar, "Separation", TW_TYPE_FLOAT, &separationRadius, "min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(pTweakBar, "Cohesion", TW_TYPE_FLOAT, &cohesionRadius, "min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(pTweakBar, "Alignment", TW_TYPE_FLOAT, &alignmentRadius, "min=-50 max=100 step=0.5 group=Radius");
+
+	TwAddVarRW(pTweakBar, "Sep", TW_TYPE_FLOAT, &separationModifier, "min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Coh", TW_TYPE_FLOAT, &cohesionModifier, "min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Ali", TW_TYPE_FLOAT, &alignmentModifier, "min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Max Speed", TW_TYPE_FLOAT, &maxSpeed, "min=0 max=50 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Turn Force", TW_TYPE_FLOAT, &maxForce, "min=0 max=10 step=0.01 group=Weight");
+
 
 	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
 }
@@ -40,11 +40,11 @@ void BoidManager::Tick(GameData * _GD)
 {
 	getUserInput(_GD);
 	//Spawn in boids
-	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
 	{
 		if (!(*it)->isAlive() && it != m_Boids.end() && desiredBoids > boidsInScene)
 		{
-			//Random start l.ocation between min and max
+			//Random start location between min and max
 			initialLocation = Vector3((float)(rand() % (startMax - startMin + 1) + startMin), 
 				((float)(rand() % (startMax - startMin + 1) + startMin)), 
 				((float)(rand() % (startMax - startMin + 1) + startMin)));
@@ -63,7 +63,7 @@ void BoidManager::Tick(GameData * _GD)
 void BoidManager::Draw(DrawData * _DD)
 {
 	//for (auto& it = boids.begin(); it != boids.end(); it++)
-	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
 	{
 		if((*it)->isAlive())
 		(*it)->Draw(_DD);
@@ -72,14 +72,9 @@ void BoidManager::Draw(DrawData * _DD)
 
 void BoidManager::getUserInput(GameData * _GD)
 {
-	/*if (_GD->m_keyboardState[DIK_Q] && placeBoid == false)
-	{
-		boidsInScene++;
-		placeBoid = true;
-	}*/
 	if (_GD->m_keyboardState[DIK_9] && !(_GD->m_prevKeyboardState[DIK_9]))
 	{
-		for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+		for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
 		{
 			(*it)->setColour(0, 1, 0);
 		}
@@ -89,29 +84,38 @@ void BoidManager::getUserInput(GameData * _GD)
 
 void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 {
-	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
 	{
-		Vector3 coh = cohesion(_boid) * cohesionModifier;
-		Vector3 sep = separation(_boid);
-		Vector3 ali = alignment(_boid) * alignmentModifier;
+		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it))
+		{
+			//get distance of nearby boids
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
 
-		_boid->setVelocity(_boid->getVelocity() + sep + coh + ali);
+			Vector3 coh = cohesion(_boid, distance) * cohesionModifier;
+			Vector3 sep = separation(_boid, distance) * separationModifier;
+			Vector3 ali = alignment(_boid, distance) * alignmentModifier;
+
+			_boid->setVelocity((_boid->getVelocity() + sep + coh + ali));
+
+		}
 	}
 }
 
 //towards the centre of mass of other boids
-Vector3 BoidManager::cohesion(Boid* _boid)
+Vector3 BoidManager::cohesion(Boid* _boid, float distance)
 {
 	Vector3 target = Vector3::Zero;
 	int count = 0;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		float distance = Vector3::Distance(_boid->GetPos(), (*it)->GetPos());
-		if (distance > 0 && distance < cohesionRadius)
+		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it))
 		{
-			target += (*it)->GetPos();
-			count++;
+			if (distance > 0 && distance < cohesionRadius)
+			{
+				target += (*it)->GetPos();
+				count++;
+			}
 		}
 	}
 	if (count > 0)
@@ -139,8 +143,16 @@ Vector3 BoidManager::seek(Vector3 _target, Vector3 _pos, Vector3 _vel)
 
 }
 
+void BoidManager::set2D(bool _is2D)
+{
+	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+	{
+		(*it)->set2D(_is2D);
+	}
+}
+
 //steer away from nearby boids
-Vector3 BoidManager::separation(Boid* _boid)
+Vector3 BoidManager::separation(Boid* _boid, float distance)
 {
 	Vector3 steer = Vector3::Zero;
 	int boidsInRange = 0;
@@ -149,7 +161,7 @@ Vector3 BoidManager::separation(Boid* _boid)
 	{
 		if (_boid != *it && _boid->isAlive() && (*it)->isAlive())
 		{
-			float distance = Vector3::Distance(_boid->GetPos(), (*it)->GetPos());
+			//float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
 			if (distance > 0 && distance < separationRadius)
 			{
 				Vector3 steerAway = _boid->GetPos() - (*it)->GetPos();
@@ -176,18 +188,20 @@ Vector3 BoidManager::separation(Boid* _boid)
 }
 
 //calculate average velocity of all nearby boids
-Vector3 BoidManager::alignment(Boid* _boid)
+Vector3 BoidManager::alignment(Boid* _boid, float distance)
 {
 	int boidsInRange = 0;
 	Vector3 sum = Vector3::Zero;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		float distance = Vector3::Distance(_boid->GetPos(), (*it)->GetPos());
-		if (distance > 0 && distance < alignmentRadius)
+		if (_boid != *it && _boid->isAlive() && (*it)->isAlive())
 		{
-			sum += (*it)->getVelocity();
-			boidsInRange++;
+			if (distance > 0 && distance < alignmentRadius)
+			{
+				sum += (*it)->getVelocity();
+				boidsInRange++;
+			}
 		}
 	}
 	if (boidsInRange > 0)

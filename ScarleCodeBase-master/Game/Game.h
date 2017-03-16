@@ -43,7 +43,7 @@ public:
 
 	void Draw(ID3D11DeviceContext* _pd3dImmediateContext); //render the current game state
 	
-//	void makeNewBoid(string _modelFileName, ID3D11Device * _pd3dDevice, IEffectFactory * _EF);
+	void set2D(bool _is2D);
 
 protected:
 	DWORD m_playTime; //amount of time since the game started
@@ -80,8 +80,6 @@ protected:
 
 	//Tick functions for each state
 	void PlayTick();
-	void displayHUD(DrawData2D * _DD);
-	int numOfBoids = 0;
 };
 
 
