@@ -32,7 +32,9 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwAddVarRW(pTweakBar, "Contrast", TW_TYPE_FLOAT, &boidContrast, "min=-1 max=1 step=0.01 group=Weight");
 
 	TwAddVarRW(pTweakBar, "Predators", TW_TYPE_FLOAT, &numOfPredators, "min=0 max=10 step=1 group=Predators");
-	TwAddVarRW(pTweakBar, "Escape value", TW_TYPE_FLOAT, &escapeModifier, "min=-10 max=10 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Escape value", TW_TYPE_FLOAT, &escapeModifier, "min=-100 max=100 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Escape Radius", TW_TYPE_FLOAT, &escapeRadius, "min=-100 max=100 step=1 group=Predators");
+
 
 
 	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
@@ -172,7 +174,7 @@ Vector3 BoidManager::escape(Boid * _boid)
 			if ((*it)->isPredator())
 			{
 				float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-				if (distance > 0 && distance < cohesionRadius * 20)
+				if (distance > 0 && distance < escapeRadius * 10)
 				{
 					predatorLocation += (*it)->GetPos();
 					count++;
@@ -190,6 +192,7 @@ Vector3 BoidManager::escape(Boid * _boid)
 		return Vector3::Zero;
 	}
 }
+
 
 void BoidManager::set2D(bool _is2D)
 {

@@ -47,11 +47,12 @@ private:
 	float alignmentRadius = 20;
 	float cohesionRadius = 20;
 	float separationRadius = 10;
+	float escapeRadius = 20;
 
 	float alignmentModifier = 1;
 	float separationModifier = 1.5;
 	float cohesionModifier = 1;
-	float escapeModifier = -5.0f;
+	float escapeModifier = -2.0f;
 
 	float maxSpeed = 10.0f;
 	float maxForce = 0.1f;
