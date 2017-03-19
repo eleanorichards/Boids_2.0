@@ -32,6 +32,7 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwAddVarRW(pTweakBar, "Contrast", TW_TYPE_FLOAT, &boidContrast, "min=-1 max=1 step=0.01 group=Weight");
 
 	TwAddVarRW(pTweakBar, "Predators", TW_TYPE_FLOAT, &numOfPredators, "min=0 max=10 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Escape value", TW_TYPE_FLOAT, &escapeModifier, "min=-10 max=10 step=1 group=Predators");
 
 
 	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
@@ -106,9 +107,9 @@ void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 	else if (_boid->isAlive() && _boid->isPredator())
 	{
 		//get distance of nearby boids
-		Vector3 coh = cohesion(_boid) * (cohesionModifier + 1);
-		Vector3 sep = separation(_boid) * separationModifier;
-		Vector3 ali = alignment(_boid) * alignmentModifier;
+		Vector3 coh = cohesion(_boid) * (cohesionModifier + 5);
+		//Vector3 sep = separation(_boid) * separationModifier;
+		//Vector3 ali = alignment(_boid) * alignmentModifier;
 
 		_boid->setVelocity((_boid->getVelocity() + coh)  /*+ (speedModifier * Vector3::One)*/);
 	}
@@ -162,23 +163,35 @@ Vector3 BoidManager::seek(Vector3 _target, Vector3 _pos, Vector3 _vel)
 Vector3 BoidManager::escape(Boid * _boid)
 {
 	Vector3 predatorLocation = Vector3::Zero;
+	int count = 0;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-		if (distance > 0 && distance < 500)
-		if ((*it)->isPredator())
+		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) && !_boid->isPredator())
 		{
-			{
-				predatorLocation = (*it)->GetPos();
-				return seek(predatorLocation, _boid->GetPos(), _boid->getVelocity());
 
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+			if (distance > 0 && distance < cohesionModifier * 100)
+			{
+
+				if ((*it)->isPredator())
+				{
+					{
+						predatorLocation += (*it)->GetPos();
+						count++;
+					}
+				}
 			}
 		}
-		else
-		{
-			return Vector3::Zero;
-		}
+	}
+	if (count > 0)
+	{
+		return seek(predatorLocation, _boid->GetPos(), _boid->getVelocity());
+		predatorLocation /= count;
+	}
+	else
+	{
+		return Vector3::Zero;
 	}
 }
 
