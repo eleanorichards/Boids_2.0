@@ -138,6 +138,9 @@
     <ClInclude Include="HUD.h">
       <Filter>Objects\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Predator.h">
+      <Filter>Objects\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -198,6 +201,9 @@
       <Filter>Objects\Source</Filter>
     </ClCompile>
     <ClCompile Include="HUD.cpp">
+      <Filter>Objects\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Predator.cpp">
       <Filter>Objects\Source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -28,6 +28,11 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwAddVarRW(pTweakBar, "Max Speed", TW_TYPE_FLOAT, &maxSpeed, "min=0 max=50 step=0.1 group=Weight");
 	TwAddVarRW(pTweakBar, "Turn Force", TW_TYPE_FLOAT, &maxForce, "min=0 max=10 step=0.01 group=Weight");
 
+	TwAddVarRW(pTweakBar, "Speed", TW_TYPE_FLOAT, &speedModifier, "min=-1 max=1 step=0.01 group=Weight");
+	TwAddVarRW(pTweakBar, "Contrast", TW_TYPE_FLOAT, &boidContrast, "min=-1 max=1 step=0.01 group=Weight");
+
+	TwAddVarRW(pTweakBar, "Predators", TW_TYPE_FLOAT, &numOfPredators, "min=0 max=10 step=1 group=Predators");
+
 
 	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
 }
@@ -42,15 +47,18 @@ void BoidManager::Tick(GameData * _GD)
 	//Spawn in boids
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
 	{
-		if (!(*it)->isAlive() && it != m_Boids.end() && desiredBoids > boidsInScene)
+		if (!(*it)->isAlive() && it != m_Boids.end())
 		{
-			//Random start location between min and max
-			initialLocation = Vector3((float)(rand() % (startMax - startMin + 1) + startMin), 
-				((float)(rand() % (startMax - startMin + 1) + startMin)), 
-				((float)(rand() % (startMax - startMin + 1) + startMin)));
-
-			(*it)->Spawn(initialLocation, 0.5*Vector3::One, _GD);
-			boidsInScene++;
+			if(numOfPredators > predatorsInScene)
+			{
+				(*it)->Spawn(0.5*Vector3::One, _GD, true);
+				predatorsInScene++;
+			}
+			if (desiredBoids > boidsInScene)
+			{
+				(*it)->Spawn(0.5*Vector3::One, _GD, false);
+				boidsInScene++;
+			}
 		}
 		if ((*it)->isAlive())
 		{
@@ -76,7 +84,7 @@ void BoidManager::getUserInput(GameData * _GD)
 	{
 		for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
 		{
-			(*it)->setColour(0, 1, 0);
+			(*it)->setColour(boidContrast, 0, 0);
 		}
 	}
 
@@ -84,34 +92,42 @@ void BoidManager::getUserInput(GameData * _GD)
 
 void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 {
-	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); ++it)
+	if (_boid->isAlive() && !_boid->isPredator())
 	{
-		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it))
-		{
-			//get distance of nearby boids
-			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+		//get distance of nearby boids
+		Vector3 coh = cohesion(_boid) * cohesionModifier;
+		Vector3 sep = separation(_boid) * separationModifier;
+		Vector3 ali = alignment(_boid) * alignmentModifier;
 
-			Vector3 coh = cohesion(_boid, distance) * cohesionModifier;
-			Vector3 sep = separation(_boid, distance) * separationModifier;
-			Vector3 ali = alignment(_boid, distance) * alignmentModifier;
+		Vector3 esc = escape(_boid) * escapeModifier;
 
-			_boid->setVelocity((_boid->getVelocity() + sep + coh + ali));
-
-		}
+		_boid->setVelocity((_boid->getVelocity() + sep + coh + ali + esc)  /*+ (speedModifier * Vector3::One)*/);
 	}
+	else if (_boid->isAlive() && _boid->isPredator())
+	{
+		//get distance of nearby boids
+		Vector3 coh = cohesion(_boid) * (cohesionModifier + 1);
+		Vector3 sep = separation(_boid) * separationModifier;
+		Vector3 ali = alignment(_boid) * alignmentModifier;
+
+		_boid->setVelocity((_boid->getVelocity() + coh)  /*+ (speedModifier * Vector3::One)*/);
+	}
+
 }
 
 //towards the centre of mass of other boids
-Vector3 BoidManager::cohesion(Boid* _boid, float distance)
+Vector3 BoidManager::cohesion(Boid* _boid)
 {
 	Vector3 target = Vector3::Zero;
 	int count = 0;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it))
+		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) && !(*it)->isPredator())
 		{
-			if (distance > 0 && distance < cohesionRadius)
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+
+			if (distance > 0 && distance < cohesionRadius * 10)
 			{
 				target += (*it)->GetPos();
 				count++;
@@ -121,7 +137,7 @@ Vector3 BoidManager::cohesion(Boid* _boid, float distance)
 	if (count > 0)
 	{
 		target /= count;
-		return seek(target, _boid->GetPos(), _boid->getVelocity());
+		return seek(target, _boid->GetPos(), _boid->getVelocity());	
 	}
 	else
 	{
@@ -143,6 +159,29 @@ Vector3 BoidManager::seek(Vector3 _target, Vector3 _pos, Vector3 _vel)
 
 }
 
+Vector3 BoidManager::escape(Boid * _boid)
+{
+	Vector3 predatorLocation = Vector3::Zero;
+
+	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+	{
+		float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+		if (distance > 0 && distance < 500)
+		if ((*it)->isPredator())
+		{
+			{
+				predatorLocation = (*it)->GetPos();
+				return seek(predatorLocation, _boid->GetPos(), _boid->getVelocity());
+
+			}
+		}
+		else
+		{
+			return Vector3::Zero;
+		}
+	}
+}
+
 void BoidManager::set2D(bool _is2D)
 {
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
@@ -152,17 +191,17 @@ void BoidManager::set2D(bool _is2D)
 }
 
 //steer away from nearby boids
-Vector3 BoidManager::separation(Boid* _boid, float distance)
+Vector3 BoidManager::separation(Boid* _boid)
 {
 	Vector3 steer = Vector3::Zero;
 	int boidsInRange = 0;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		if (_boid != *it && _boid->isAlive() && (*it)->isAlive())
+		if (_boid != *it && _boid->isAlive() && (*it)->isAlive() && !(*it)->isPredator())
 		{
-			//float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-			if (distance > 0 && distance < separationRadius)
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+			if (distance > 0 && distance < separationRadius * 10)
 			{
 				Vector3 steerAway = _boid->GetPos() - (*it)->GetPos();
 				steerAway.Normalize();
@@ -188,16 +227,18 @@ Vector3 BoidManager::separation(Boid* _boid, float distance)
 }
 
 //calculate average velocity of all nearby boids
-Vector3 BoidManager::alignment(Boid* _boid, float distance)
+Vector3 BoidManager::alignment(Boid* _boid)
 {
 	int boidsInRange = 0;
 	Vector3 sum = Vector3::Zero;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		if (_boid != *it && _boid->isAlive() && (*it)->isAlive())
+		if (_boid != *it && _boid->isAlive() && (*it)->isAlive() && !(*it)->isPredator())
 		{
-			if (distance > 0 && distance < alignmentRadius)
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+
+			if (distance > 0 && distance < alignmentRadius * 10)
 			{
 				sum += (*it)->getVelocity();
 				boidsInRange++;
@@ -209,7 +250,6 @@ Vector3 BoidManager::alignment(Boid* _boid, float distance)
 		sum /= boidsInRange;
 		sum.Normalize();
 		sum *= maxSpeed;
-
 		Vector3 steer = sum - _boid->getVelocity();
 		steer = XMVector3ClampLength(steer, 0.0f, maxForce);
 		return steer;

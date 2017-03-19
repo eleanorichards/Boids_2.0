@@ -22,10 +22,12 @@ public:
 	void getUserInput(GameData * _GD);
 	void moveBoid(Boid* _boid, GameData * _GD);
 
-	Vector3 separation(Boid* _boid, float distance);
-	Vector3 alignment(Boid* _boid, float distance);
-	Vector3 cohesion(Boid* _boid, float distance);
+	Vector3 separation(Boid* _boid);
+	Vector3 alignment(Boid* _boid);
+	Vector3 cohesion(Boid* _boid);
 	Vector3 seek(Vector3 _target, Vector3 _pos, Vector3 _vel);
+
+	Vector3 escape(Boid* _boid);
 
 	//GETTERS
 	int getNumOfBoids() { return boidsInScene; }
@@ -42,23 +44,30 @@ private:
 	Vector3 randomDirection;
 
 	//alignment and cohesion radius should be similar/the same
-	float alignmentRadius = 30;
-	float cohesionRadius = 40;
+	float alignmentRadius = 20;
+	float cohesionRadius = 20;
 	float separationRadius = 10;
 
 	float alignmentModifier = 1;
-	float separationModifier = 1;
+	float separationModifier = 1.5;
 	float cohesionModifier = 1;
-	
-	float maxSpeed = 15.0f;
+	float escapeModifier = -5.0f;
+
+	float maxSpeed = 10.0f;
 	float maxForce = 0.1f;
 
 	float boidsInScene = 0;
+	float predatorsInScene = 0;
 	float desiredBoids = 0;
+	float boidContrast = 0.0f;
+	float speedModifier = 0.0f;
+	float numOfPredators = 0.0f;
 
 	int max = 10;
 	int min = -10;
 	int startMax = 50;
 	int startMin = -50;
+
+	bool hunted = false;
 
 };

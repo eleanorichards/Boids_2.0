@@ -28,10 +28,12 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 		m_vertices[i].texCoord = Vector2::One;
 	}
 
+	
+	//Vert bits
 	//X tri
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, -2, 0);
-	m_vertices[vert].Color = Color(0.0f, 0.0f, 0.0f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, 2, 4);
@@ -39,26 +41,11 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	//Y tri
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, 2, 0);
-	m_vertices[vert].Color = Color(0.0f, 0.0f, 0.0f, 1.0f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, -2, 4);
-
-	////left tri
-	//m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
-	//m_vertices[vert++].Pos = Vector3(2, 0, 0);
-	//m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 1.0f);
-	//m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
-	//m_vertices[vert].Color = Color(1.0f, 0.0f, 1.0f, 1.0f);
-	//m_vertices[vert++].Pos = Vector3(-2, 0, 0);
-
-	//right tri
-	//m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 1.0f);
-	//m_vertices[vert++].Pos = Vector3(0, 0, -2);
-	//m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 1.0f);
-	//m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
-	//m_vertices[vert].Color = Color(0.0f, 0.0f, 1.0f, 1.0f);
-	//m_vertices[vert++].Pos = Vector3(0, 0, 2);
+	
 
 
 	for (int i = 0; i < m_numPrims; i++)
@@ -93,8 +80,9 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	TwBar* pTweakBar;
 	pTweakBar = TwGetBarByName("Boid Manager");
 
-	TwAddVarRW(pTweakBar, "Box size", TW_TYPE_FLOAT, &boxSize, "min=10 max=250 step=1 group=Room");
-	TwAddVarRW(pTweakBar, "Speed", TW_TYPE_FLOAT, &speedModifier, "min=-1 max=100 step=0.1 group=Weight");
+	//TwAddVarRW(pTweakBar, "Box size", TW_TYPE_FLOAT, &boxSize, "min=10 max=250 step=1 group=Room");	
+	//TwAddVarRW(pTweakBar, "Colour", TW_TYPE_FLOAT, &colour, "min=0 max=1 step=0.1 group=Boids");
+
 	
 }
 
@@ -102,14 +90,18 @@ Boid::~Boid()
 {
 }
 
-void Boid::Spawn(Vector3 _pos, Vector3 _scale, GameData* _GD)
+void Boid::Spawn(Vector3 _scale, GameData* _GD, bool _isPredator)
 {
 	initialDirection = Vector3(((float)(rand() % max) - min), ((float)(rand() % max) - min), (((float)(rand() % max) - min)))*0.1;
-	
+	initialLocation = Vector3((float)(rand() % (startMax - startMin + 1) + startMin),
+		((float)(rand() % (startMax - startMin + 1) + startMin)),
+		((float)(rand() % (startMax - startMin + 1) + startMin)));
+
 	m_alive = true; // turn this enemy ON ;)
-	m_pos = _pos;
+	m_pos = initialLocation;
 	m_scale = _scale;
 	m_vel = initialDirection;
+	m_predator = _isPredator;
 }
 
 void Boid::Tick(GameData * _GD)
@@ -127,11 +119,10 @@ void Boid::Tick(GameData * _GD)
 			{
 				m_pos.y = 0.0f;
 			}
-			else
-			{
-				setAcceleration((m_vel) * _GD->m_dt);
-				m_pos += m_acc;	 
-			}
+			
+			setAcceleration(((m_vel) * _GD->m_dt));
+			m_pos += m_acc;	 
+			
 		}
 		setRotation();
 	}
@@ -153,7 +144,7 @@ void Boid::SetAlive(bool isAlive)
 //limit and then set velocity
 void Boid::setVelocity(Vector3 velocity)
 {
-	m_vel = velocity + Vector3::One*(speedModifier / 10);
+	m_vel = velocity;
 }
 
 void Boid::setPosition(Vector3 position)
@@ -203,7 +194,13 @@ void Boid::setAcceleration(Vector3 _acceleration)
 
 void Boid::setColour(float r, float g, float b)
 {
-	m_vertices[1].Color = Color(r, g, b, 1.0f);
+	m_vertices[1].Color.AdjustContrast(r);
+	m_vertices[2].Color.AdjustContrast(r);
+	m_vertices[3].Color.AdjustContrast(r);
+	m_vertices[4].Color.AdjustContrast(r);
+	m_vertices[5].Color.AdjustContrast(r);
+	m_vertices[6].Color.AdjustContrast(r);
+	//m_vertices[1].Color = Color(r, g, b, 1.0f);
 }
 
 

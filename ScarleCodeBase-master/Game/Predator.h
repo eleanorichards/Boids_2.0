@@ -2,13 +2,13 @@
 #include "VBGO.h"
 #include "vertex.h"
 
-class Boid : public VBGO
+class Predator : public VBGO
 {
 public:
 	Boid(ID3D11Device* _pd3dDevice);
 	~Boid();
 
-	void Spawn(Vector3 _scale, GameData* _GD, bool _isPredator);
+	void Spawn(Vector3 _pos, Vector3 _scale, GameData* _GD);
 
 	virtual void Tick(GameData* _GD) override;
 	virtual void Draw(DrawData* _DD) override;
@@ -19,16 +19,15 @@ public:
 	void setPosition(Vector3 position);
 	void setRotation();
 	void setAcceleration(Vector3 _acceleration);
+	void setSpeed(float _speed) { speed = _speed; };
 	void setColour(float r, float g, float b);
 	void set2D(bool _is2D) { is2D = _is2D; };
 
 	//GETTERS
 	Vector3 getVelocity() { return m_vel; }
 	Vector3 getAccleration() { return m_acc; }
-	
-	bool isAlive() { return m_alive; }
-	bool isPredator() { return m_predator; }
 
+	bool isAlive() { return m_alive; }
 
 
 private:
@@ -38,22 +37,18 @@ private:
 	Vector3 m_acc;
 	Vector3 travelDirection;
 	Vector3 initialDirection;
-	Vector3 initialLocation;
 
 	bool inBoundingBox = true;
 	bool m_alive;
 	bool is2D = false;
-	bool m_predator = false;
-
 	int max = 100;
 	int min = 50;
 
-	float boxSize = 100;
+	float boxSize = 150;
 	float accelerationLimit = 10;
 	float speed = 1;
-	float colour = 0.0f;
-	int startMax = 50;
-	int startMin = -50;
+	float speedModifier = 0.0f;
+
 
 	myVertex* m_vertices;
 
