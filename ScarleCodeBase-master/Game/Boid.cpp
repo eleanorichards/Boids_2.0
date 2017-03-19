@@ -33,7 +33,7 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	//X tri
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, -2, 0);
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, 2, 4);
@@ -41,7 +41,7 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	//Y tri
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, 2, 0);
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
+	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
 	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	m_vertices[vert++].Pos = Vector3(0, -2, 4);

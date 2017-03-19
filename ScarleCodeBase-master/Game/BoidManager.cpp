@@ -52,7 +52,7 @@ void BoidManager::Tick(GameData * _GD)
 		{
 			if(numOfPredators > predatorsInScene)
 			{
-				(*it)->Spawn(0.5*Vector3::One, _GD, true);
+				(*it)->Spawn(2*Vector3::One, _GD, true);
 				predatorsInScene++;
 			}
 			if (desiredBoids > boidsInScene)
@@ -107,11 +107,10 @@ void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 	else if (_boid->isAlive() && _boid->isPredator())
 	{
 		//get distance of nearby boids
-		Vector3 coh = cohesion(_boid) * (cohesionModifier + 5);
-		//Vector3 sep = separation(_boid) * separationModifier;
-		//Vector3 ali = alignment(_boid) * alignmentModifier;
+		Vector3 coh = cohesion(_boid) * cohesionModifier;
+		Vector3 ali = alignment(_boid) * alignmentModifier;
 
-		_boid->setVelocity((_boid->getVelocity() + coh)  /*+ (speedModifier * Vector3::One)*/);
+		_boid->setVelocity((_boid->getVelocity() + coh + ali)  /*+ (speedModifier * Vector3::One)*/);
 	}
 
 }
@@ -170,16 +169,13 @@ Vector3 BoidManager::escape(Boid * _boid)
 		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) && !_boid->isPredator())
 		{
 
-			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-			if (distance > 0 && distance < cohesionModifier * 100)
+			if ((*it)->isPredator())
 			{
-
-				if ((*it)->isPredator())
+				float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+				if (distance > 0 && distance < cohesionRadius * 20)
 				{
-					{
-						predatorLocation += (*it)->GetPos();
-						count++;
-					}
+					predatorLocation += (*it)->GetPos();
+					count++;
 				}
 			}
 		}
