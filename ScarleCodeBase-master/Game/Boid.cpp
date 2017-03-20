@@ -28,25 +28,45 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 		m_vertices[i].texCoord = Vector2::One;
 	}
 
-	
-	//Vert bits
-	//X tri
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(0, -2, 0);
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(0, 2, 4);
+	if (!m_predator)
+	{
 
-	//Y tri
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(0, 2, 0);
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
-	m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-	m_vertices[vert++].Pos = Vector3(0, -2, 4);
-	
+		//Vert bits
+		//X tri
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, -2, 0);
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, 2, 4);
 
+		//Y tri
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, 2, 0);
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, -2, 4);
+	}
+	else if (m_predator)
+	{
+		//Vert bits
+		//X tri
+		m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, -2, 0);
+		m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(5, 0, 2); //this is the point
+		m_vertices[vert].Color = Color(1.0f, 0.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, 2, 4);
+
+		//Y tri
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, 2, 0);
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(5, 0, 2); // this is the point
+		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
+		m_vertices[vert++].Pos = Vector3(0, -2, 4);
+	}
 
 	for (int i = 0; i < m_numPrims; i++)
 	{
@@ -108,9 +128,9 @@ void Boid::Tick(GameData * _GD)
 {
 	if (m_alive)
 	{
+		//move to opposite end of box if out of range
 		if (m_pos.x >= boxSize || m_pos.x <= -boxSize || m_pos.y >= boxSize || m_pos.y <= -boxSize || m_pos.z >= boxSize || m_pos.z <= -boxSize)
 		{
-			//move to opposite end of box
 			m_pos *= (-0.95);
 		}
 		else 
@@ -119,10 +139,7 @@ void Boid::Tick(GameData * _GD)
 			{
 				m_pos.y = 0.0f;
 			}
-			
-			setAcceleration(((m_vel) * _GD->m_dt));
-			m_pos += m_acc;	 
-			
+			m_pos += ((m_vel)* _GD->m_dt);
 		}
 		setRotation();
 	}
@@ -159,37 +176,6 @@ void Boid::setRotation()
 	Matrix transMat = Matrix::CreateTranslation(m_pos);
 	m_worldMat = m_fudge * scaleMat * rotTransMat * transMat;
 
-}
-
-void Boid::setAcceleration(Vector3 _acceleration)
-{
-	//cap acceleration in any direction to the set MAX
-	if (_acceleration.x > accelerationLimit)
-	{
-		_acceleration.x = accelerationLimit;
-	}
-	if (_acceleration.y > accelerationLimit)
-	{
-		_acceleration.y = accelerationLimit;
-	}
-	if (_acceleration.z > accelerationLimit)
-	{
-		_acceleration.z = accelerationLimit;
-	}
-	if (_acceleration.x < -accelerationLimit)
-	{
-		_acceleration.x = -accelerationLimit;
-	}
-	if (_acceleration.y < -accelerationLimit)
-	{
-		_acceleration.y = -accelerationLimit;
-	}
-	if (_acceleration.z < -accelerationLimit)
-	{
-		_acceleration.z = -accelerationLimit;
-	}
-
-	m_acc = _acceleration;
 }
 
 void Boid::setColour(float r, float g, float b)

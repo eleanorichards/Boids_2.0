@@ -16,24 +16,21 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* pTweakBar;
 	pTweakBar = TwGetBarByName("Boid Manager");
 
-	TwAddVarRW(pTweakBar, "Num of Boids", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=500 step=1 group=Boid");
+	TwAddVarRW(pTweakBar, "Num of Boids",	TW_TYPE_FLOAT, &desiredBoids, "min=0 max=500 step=1 group=Boid");
 
-	TwAddVarRW(pTweakBar, "Separation", TW_TYPE_FLOAT, &separationRadius, "min=-50 max=100 step=0.5 group=Radius");
-	TwAddVarRW(pTweakBar, "Cohesion", TW_TYPE_FLOAT, &cohesionRadius, "min=-50 max=100 step=0.5 group=Radius");
-	TwAddVarRW(pTweakBar, "Alignment", TW_TYPE_FLOAT, &alignmentRadius, "min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(pTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(pTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(pTweakBar, "Alignment",		TW_TYPE_FLOAT, &alignmentRadius,	"min=-50 max=100 step=0.5 group=Radius");
 
-	TwAddVarRW(pTweakBar, "Sep", TW_TYPE_FLOAT, &separationModifier, "min=0 max=5 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Coh", TW_TYPE_FLOAT, &cohesionModifier, "min=0 max=5 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Ali", TW_TYPE_FLOAT, &alignmentModifier, "min=0 max=5 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Max Speed", TW_TYPE_FLOAT, &maxSpeed, "min=0 max=50 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Turn Force", TW_TYPE_FLOAT, &maxForce, "min=0 max=10 step=0.01 group=Weight");
+	TwAddVarRW(pTweakBar, "Sep",			TW_TYPE_FLOAT, &separationModifier,	"min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Coh",			TW_TYPE_FLOAT, &cohesionModifier,	"min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Ali",			TW_TYPE_FLOAT, &alignmentModifier,	"min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Max Speed",		TW_TYPE_FLOAT, &maxSpeed,			"min=0 max=50 step=0.1 group=Weight");
+	TwAddVarRW(pTweakBar, "Turn Force",		TW_TYPE_FLOAT, &maxForce,			"min=0 max=10 step=0.01 group=Weight");
 
-	TwAddVarRW(pTweakBar, "Speed", TW_TYPE_FLOAT, &speedModifier, "min=-1 max=1 step=0.01 group=Weight");
-	//TwAddVarRW(pTweakBar, "Contrast", TW_TYPE_FLOAT, &boidContrast, "min=-1 max=1 step=0.01 group=Weight");
-
-	TwAddVarRW(pTweakBar, "Predators", TW_TYPE_FLOAT, &numOfPredators, "min=0 max=10 step=1 group=Predators");
-	TwAddVarRW(pTweakBar, "Escape value", TW_TYPE_FLOAT, &escapeModifier, "min=-100 max=100 step=1 group=Predators");
-	TwAddVarRW(pTweakBar, "Escape Radius", TW_TYPE_FLOAT, &escapeRadius, "min=-100 max=100 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Num of Predators",TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Escape value",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Escape Radius",	TW_TYPE_FLOAT, &escapeRadius,		"min=-100 max=100 step=1 group=Predators");
 
 
 
@@ -61,6 +58,25 @@ void BoidManager::Tick(GameData * _GD)
 			{
 				(*it)->Spawn(0.5*Vector3::One, _GD, false);
 				boidsInScene++;
+			}
+		}
+		else if ((*it)->isAlive())
+		{
+			if (predatorsInScene > numOfPredators) //if predator taken out
+			{
+				if ((*it)->isPredator());
+				{
+					(*it)->SetAlive(false);
+					predatorsInScene--;
+				}
+			}
+			if (boidsInScene > desiredBoids) //if normal boid taken out
+			{
+				if (!(*it)->isPredator());
+				{
+					(*it)->SetAlive(false);
+					boidsInScene--;
+				}
 			}
 		}
 		//Tick & move every frame
@@ -115,7 +131,6 @@ Vector3 BoidManager::cohesion(Boid* _boid)
 		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) && !(*it)->isPredator())
 		{
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-
 			if (distance > 0 && distance < cohesionRadius * 10)
 			{
 				target += (*it)->GetPos();
@@ -159,18 +174,17 @@ Vector3 BoidManager::escape(Boid * _boid)
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) && !_boid->isPredator())
+		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) 
+			&& !_boid->isPredator() && (*it)->isPredator())
 		{
-
-			if ((*it)->isPredator())
+			
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
+			if (distance > 0 && distance < escapeRadius * 10)
 			{
-				float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-				if (distance > 0 && distance < escapeRadius * 10)
-				{
-					predatorLocation += (*it)->GetPos();
-					count++;
-				}
+				predatorLocation += (*it)->GetPos();
+				count++;
 			}
+			
 		}
 	}
 	if (count > 0)
@@ -243,7 +257,6 @@ Vector3 BoidManager::alignment(Boid* _boid)
 		if (_boid != *it && _boid->isAlive() && (*it)->isAlive() && !(*it)->isPredator())
 		{
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
-
 			if (distance > 0 && distance < alignmentRadius * 10)
 			{
 				sum += (*it)->getVelocity();

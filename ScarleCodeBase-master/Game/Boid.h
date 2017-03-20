@@ -18,13 +18,11 @@ public:
 	void setVelocity(Vector3 velocity);
 	void setPosition(Vector3 position);
 	void setRotation();
-	void setAcceleration(Vector3 _acceleration);
 	void setColour(float r, float g, float b);
 	void set2D(bool _is2D) { is2D = _is2D; };
 
 	//GETTERS
 	Vector3 getVelocity() { return m_vel; }
-	Vector3 getAccleration() { return m_acc; }
 	
 	bool isAlive() { return m_alive; }
 	bool isPredator() { return m_predator; }
