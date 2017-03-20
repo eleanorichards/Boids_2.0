@@ -19,7 +19,6 @@ public:
 	virtual void Tick(GameData* _GD) override;
 	virtual void Draw(DrawData* _DD) override;
 
-	void getUserInput(GameData * _GD);
 	void moveBoid(Boid* _boid, GameData * _GD);
 
 	Vector3 separation(Boid* _boid);
@@ -52,7 +51,7 @@ private:
 	float alignmentModifier = 1;
 	float separationModifier = 1.5;
 	float cohesionModifier = 1;
-	float escapeModifier = -2.0f;
+	float escapeModifier = 2.0f;
 
 	float maxSpeed = 10.0f;
 	float maxForce = 0.1f;
@@ -68,7 +67,4 @@ private:
 	int min = -10;
 	int startMax = 50;
 	int startMin = -50;
-
-	bool hunted = false;
-
 };

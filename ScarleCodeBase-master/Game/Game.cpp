@@ -12,7 +12,6 @@
 #include "drawdata.h"
 #include "DrawData2D.h"
 #include "BoidManager.h"
-#include "TextGO2D.h"
 
 #include "AntTweakBar.h"
 
@@ -117,7 +116,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 
 
 	//add Boid Manager
-	pBoidManager = new BoidManager(300, _pd3dDevice);
+	pBoidManager = new BoidManager(510, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls
