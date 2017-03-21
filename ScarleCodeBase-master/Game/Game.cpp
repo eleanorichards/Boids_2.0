@@ -98,7 +98,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	TwWindowSize(width, height);
 	
 	//create a base camera
-	m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
+	m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 1000.0f, Vector3::UnitY, Vector3::Zero);
 	m_cam->SetPos(Vector3(0.0f, 500.0f, 100.0f));
 	m_GameObjects.push_back(m_cam);
 
@@ -116,7 +116,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 
 
 	//add Boid Manager
-	pBoidManager = new BoidManager(510, _pd3dDevice);
+	pBoidManager = new BoidManager(810, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
 	//Add walls

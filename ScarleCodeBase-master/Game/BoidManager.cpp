@@ -16,7 +16,7 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* pTweakBar;
 	pTweakBar = TwGetBarByName("Boid Manager");
 
-	TwAddVarRW(pTweakBar, "Num of Boids",	TW_TYPE_FLOAT, &desiredBoids, "min=0 max=500 step=1 group=Boid");
+	TwAddVarRW(pTweakBar, "Num of Boids",	TW_TYPE_FLOAT, &desiredBoids, "min=0 max=800 step=1 group=Boid");
 
 	TwAddVarRW(pTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
 	TwAddVarRW(pTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
@@ -32,7 +32,8 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwAddVarRW(pTweakBar, "Escape value",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Radius",	TW_TYPE_FLOAT, &escapeRadius,		"min=-100 max=100 step=1 group=Predators");
 
-
+	TwAddVarRW(pTweakBar, "amplitude", TW_TYPE_FLOAT, &amplitude, "min=-100 max=100 step=0.1 group=Predators");
+	TwAddVarRW(pTweakBar, "Freq", TW_TYPE_FLOAT, &frequency, "min=-100 max=100 step=0.1 group=Predators");
 
 	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
 }
@@ -62,26 +63,20 @@ void BoidManager::Tick(GameData * _GD)
 		}
 		else if ((*it)->isAlive())
 		{
-			if (predatorsInScene > numOfPredators) //if predator taken out
+			if (predatorsInScene > numOfPredators && (*it)->isPredator()) //if predator taken out
 			{
-				if ((*it)->isPredator());
-				{
-					(*it)->SetAlive(false);
-					predatorsInScene--;
-				}
+				
+				(*it)->SetAlive(false);
+				predatorsInScene--;
+				
 			}
-			if (boidsInScene > desiredBoids) //if normal boid taken out
+			if (boidsInScene > desiredBoids && !(*it)->isPredator()) //if normal boid taken out
 			{
-				if (!(*it)->isPredator());
-				{
-					(*it)->SetAlive(false);
-					boidsInScene--;
-				}
+				(*it)->SetAlive(false);
+				boidsInScene--;
 			}
-		}
-		//Tick & move every frame
-		if ((*it)->isAlive())
-		{
+
+			//Tick & move every frame
 			(*it)->Tick(_GD);
 			moveBoid((*it), _GD);
 		}
@@ -115,7 +110,8 @@ void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 	else if (_boid->isAlive() && _boid->isPredator())
 	{
 		Vector3 coh = cohesion(_boid) * cohesionModifier;
-		_boid->setVelocity((_boid->getVelocity() + coh)  /*+ (speedModifier * Vector3::One)*/);
+		Vector3 wig = wiggle(_boid, _GD);
+		_boid->setVelocity((_boid->getVelocity() + coh + wig)  /*+ (speedModifier * Vector3::One)*/);
 	}
 
 }
@@ -128,15 +124,24 @@ Vector3 BoidManager::cohesion(Boid* _boid)
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
-		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) && !(*it)->isPredator())
+		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) )
 		{
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
 			if (distance > 0 && distance < cohesionRadius * 10)
 			{
-				target += (*it)->GetPos();
-				count++;
+				if (!(*it)->isPredator())
+				{
+					target += (*it)->GetPos();
+					count++;
+				}
+				else if ((*it)->isPredator() && distance < 100 && !_boid->isPredator()) //if predator is too close to boid, EAT HIM
+				{
+					_boid->SetAlive(false);
+					desiredBoids--;
+				}
 			}
 		}
+		
 	}
 	if (count > 0)
 	{
@@ -196,6 +201,17 @@ Vector3 BoidManager::escape(Boid * _boid)
 	{
 		return Vector3::Zero;
 	}
+}
+
+Vector3 BoidManager::wiggle(Boid * _boid, GameData * _GD)
+{
+	//Vector3 wiggle = Vector3::Zero;
+	Vector3 wiggly = Vector3::Zero;
+
+	//wiggly.x = amplitude * sin(2 * XM_PI*frequency*_GD->m_dt);
+
+	// = a * Mathf.Sin(2 * Mathf.Pi*freq*_GD->m_dt
+	return wiggly;
 }
 
 

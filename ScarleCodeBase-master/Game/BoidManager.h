@@ -28,6 +28,8 @@ public:
 
 	Vector3 escape(Boid* _boid);
 
+	Vector3 wiggle(Boid* _boid, GameData * _GD);
+
 	//GETTERS
 	int getNumOfBoids() { return boidsInScene; }
 
@@ -41,7 +43,7 @@ private:
 	Vector3 initialLocation;
 	Vector3 travelDirection;
 	Vector3 randomDirection;
-
+	//Vector3 wiggly = Vector3::Zero;
 	//alignment and cohesion radius should be similar/the same
 	float alignmentRadius = 20;
 	float cohesionRadius = 20;
@@ -55,6 +57,9 @@ private:
 
 	float maxSpeed = 10.0f;
 	float maxForce = 0.1f;
+
+	float frequency = 0.1;
+	float amplitude = 0.1;
 
 	float boidsInScene = 0;
 	float predatorsInScene = 0;
