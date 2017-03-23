@@ -14,6 +14,7 @@
 #include "SpriteFont.h"
 #include "Audio.h"
 #include "CameraControl.h"
+#include "Obstacle.h"
 
 using std::list;
 using std::unique_ptr;
@@ -54,6 +55,7 @@ protected:
 	Light* m_light; //base light
 	BoidManager* pBoidManager;//boid manager
 
+
 	list<GameObject *> m_GameObjects; //data structure storing all GameObjects of this Game
 	list<GameObject2D *> m_GameObject2Ds;//ditto 2D objects
 
@@ -80,6 +82,9 @@ protected:
 
 	//Tick functions for each state
 	void PlayTick();
+	Vector3 initialLocation;
+
+
 };
 
 

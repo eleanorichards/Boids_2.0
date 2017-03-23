@@ -97,9 +97,9 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	//set m_up
 	m_up = Vector3::Transform(Vector3::Up, m_fudge.Invert() * m_worldMat) - m_pos;
 
-	TwBar* pTweakBar;
-	pTweakBar = TwGetBarByName("Boid Manager");
-
+	//TwBar* pTweakBar;
+	//pTweakBar = TwGetBarByName("Boid Manager");
+	//APPLE
 	//TwAddVarRW(pTweakBar, "Box size", TW_TYPE_FLOAT, &boxSize, "min=10 max=250 step=1 group=Room");	
 	//TwAddVarRW(pTweakBar, "Colour", TW_TYPE_FLOAT, &colour, "min=0 max=1 step=0.1 group=Boids");
 
@@ -142,6 +142,8 @@ void Boid::Tick(GameData * _GD)
 			m_pos += ((m_vel)* _GD->m_dt);
 		}
 		setRotation();
+
+		
 	}
 }
 
@@ -164,10 +166,6 @@ void Boid::setVelocity(Vector3 velocity)
 	m_vel = velocity;
 }
 
-void Boid::setPosition(Vector3 position)
-{
-	m_pos = position;
-}
 
 void Boid::setRotation()
 {

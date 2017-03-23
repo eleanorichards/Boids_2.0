@@ -7,12 +7,9 @@
 Obstacle::Obstacle(ID3D11Device * _pd3dDevice)
 {
 	//initialise as not alive
-	bool m_alive = false;
+	m_alive = false;
 
-	// this is most certinaly not the most efficent way of doing most of this
-	//but it does give you a very clear idea of what is actually going on
-
-	int m_size = 1;
+	float m_size = 10;
 
 	//calculate number of vertices and primatives
 	int numVerts = 6 * 6 * (m_size - 1) * (m_size - 1);
@@ -126,6 +123,7 @@ Obstacle::Obstacle(ID3D11Device * _pd3dDevice)
 		}
 	}
 
+
 	//calculate the normals for the basic lighting in the base shader
 	for (int i = 0; i<m_numPrims; i++)
 	{
@@ -146,16 +144,43 @@ Obstacle::Obstacle(ID3D11Device * _pd3dDevice)
 	}
 
 
-	BuildIB(GD, indices);
-	BuildVB(GD, numVerts, m_vertices);
+	BuildIB(_pd3dDevice, indices);
+	BuildVB(_pd3dDevice, numVerts, m_vertices);
 
 	delete[] indices;    //this is no longer needed as this is now in the index Buffer
 	delete[] m_vertices; //this is no longer needed as this is now in the Vertex Buffer
 	m_vertices = nullptr;
+
+	
+
 
 }
 
 Obstacle::~Obstacle()
 {
 }
+
+void Obstacle::Spawn(Vector3 _scale, GameData* _GD, Vector3 _location)
+{
+	initialLocation = Vector3((float)(rand() % (startMax - startMin + 1) + startMin),
+	((float)(rand() % (startMax - startMin + 1) + startMin)),
+	((float)(rand() % (startMax - startMin + 1) + startMin)));
+
+	m_alive = true; // turn this enemy ON ;)
+	m_pos = _location;
+	m_scale = _scale;
+}
+
+void Obstacle::Draw(DrawData * _DD)
+{
+	if (m_alive)
+	{
+		VBGO::Draw(_DD);
+	}
+}
+
+void Obstacle::Tick(GameData * _GD)
+{
+}
+
 

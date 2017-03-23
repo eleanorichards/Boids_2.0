@@ -2,6 +2,7 @@
 #include "VBGO.h"
 #include "vertex.h"
 
+
 class Boid : public VBGO
 {
 public:
@@ -16,7 +17,6 @@ public:
 	//SETTERS
 	void SetAlive(bool isAlive);
 	void setVelocity(Vector3 velocity);
-	void setPosition(Vector3 position);
 	void setRotation();
 	void setColour(float r, float g, float b);
 	void set2D(bool _is2D) { is2D = _is2D; };
@@ -37,6 +37,7 @@ private:
 	Vector3 travelDirection;
 	Vector3 initialDirection;
 	Vector3 initialLocation;
+
 
 	bool inBoundingBox = true;
 	bool m_alive;

@@ -6,6 +6,7 @@
 #include "Boid.h"
 #include <list>
 #include <vector>
+#include "Obstacle.h"
 
 using namespace std;
 using namespace DirectX;	
@@ -40,9 +41,13 @@ private:
 	list<Boid*> m_Boids;
 	Boid* _Boid;
 
+	list<Obstacle*> m_Obstacles;
+
 	Vector3 initialLocation;
 	Vector3 travelDirection;
 	Vector3 randomDirection;
+
+	Vector3 obstacleSpawn;
 	//Vector3 wiggly = Vector3::Zero;
 	//alignment and cohesion radius should be similar/the same
 	float alignmentRadius = 20;
@@ -51,7 +56,7 @@ private:
 	float escapeRadius = 20;
 
 	float alignmentModifier = 1;
-	float separationModifier = 1.5;
+	float separationModifier = 1.1;
 	float cohesionModifier = 1;
 	float escapeModifier = 2.0f;
 
@@ -67,6 +72,9 @@ private:
 	float boidContrast = 0.0f;
 	float speedModifier = 0.0f;
 	float numOfPredators = 0.0f;
+
+	float obstaclesInScene = 0;
+	float obstaclesDesired = 0;
 
 	int max = 10;
 	int min = -10;

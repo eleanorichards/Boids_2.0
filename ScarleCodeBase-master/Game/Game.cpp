@@ -110,21 +110,31 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	m_camControl->SetPos(Vector3(0.0f, 0.0f, 0.0f));
 	m_GameObjects.push_back(m_camControl);
 
-	//create antTweakbar
+	//create antTweakbars
+	TwBar* bTweakBar;
+	bTweakBar = TwNewBar("Boid");
+
 	TwBar* pTweakBar;
-	pTweakBar = TwNewBar("Boid Manager");
+	pTweakBar = TwNewBar("Predator");
+
+	TwBar* oTweakBar;
+	oTweakBar = TwNewBar("Obstacle");
 
 
 	//add Boid Manager
 	pBoidManager = new BoidManager(810, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 	
+
+
 	//Add walls
 	//Walls* pWall = new Walls();
 	//pWall->init(11, _pd3dDevice);
 	//pWall->SetPos(Vector3::Zero);
 	//pWall->SetScale(80.0f);
 	//m_GameObjects.push_back(pWall);
+
+	
 
 	//add a secondary camera
 	m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, m_camControl, Vector3::UnitY, Vector3(0.0f, 30.0f, 30.0f));
@@ -141,7 +151,9 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.01f * Vector3::One);
 	m_GameObjects.push_back(terrain);
 
-	TwAddButton(pTweakBar, "2D", RunCB, this, "label=set2D");
+	TwAddButton(pTweakBar, "2D", RunCB, this, "label=Room");
+	
+
 };
 
 
@@ -260,11 +272,20 @@ void Game::PlayTick()
 		}
 	}
 
+	if (m_keyboardState[DIK_Q])
+	{
+		float mouseX = m_GD->m_mouseState->lX;
+		float mouseY = m_GD->m_mouseState->lY;
+		
+		initialLocation = Vector3(mouseX, mouseY, 0.0f);
+	}
+	
 	//update all objects
 	for (list<GameObject *>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
 	{
 		(*it)->Tick(m_GD);
 	}
+	
 }
 
 
@@ -292,6 +313,8 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 	{
 		(*it)->Draw(m_DD);
 	}
+
+	
 	
 	m_DD2D->m_Sprites->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	for (list<GameObject *>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
@@ -311,6 +334,8 @@ void Game::set2D(bool _is2D)
 {
 	pBoidManager->set2D(_is2D);
 }
+
+
 
 ;
 

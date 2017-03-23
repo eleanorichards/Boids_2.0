@@ -13,29 +13,42 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 		m_Boids.push_back(new Boid(_pd3dDevice));
 	}
 
+	for (int i = 0; i < 10; i++)
+	{
+		m_Obstacles.push_back(new Obstacle(_pd3dDevice));
+	}
+
+	TwBar* bTweakBar;
+	bTweakBar = TwGetBarByName("Boid");
+
+	TwAddVarRW(bTweakBar, "Boids",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=800 step=1");
+
+	TwAddVarRW(bTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(bTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
+	TwAddVarRW(bTweakBar, "Alignment",		TW_TYPE_FLOAT, &alignmentRadius,	"min=-50 max=100 step=0.5 group=Radius");
+
+	TwAddVarRW(bTweakBar, "Sep",			TW_TYPE_FLOAT, &separationModifier,	"min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(bTweakBar, "Coh",			TW_TYPE_FLOAT, &cohesionModifier,	"min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(bTweakBar, "Ali",			TW_TYPE_FLOAT, &alignmentModifier,	"min=0 max=5 step=0.1 group=Weight");
+	TwAddVarRW(bTweakBar, "Max Speed",		TW_TYPE_FLOAT, &maxSpeed,			"min=0 max=50 step=0.1 group=Weight");
+	TwAddVarRW(bTweakBar, "Turn Force",		TW_TYPE_FLOAT, &maxForce,			"min=0 max=10 step=0.01 group=Weight");
+
 	TwBar* pTweakBar;
-	pTweakBar = TwGetBarByName("Boid Manager");
+	pTweakBar = TwGetBarByName("Predator");
 
-	TwAddVarRW(pTweakBar, "Num of Boids",	TW_TYPE_FLOAT, &desiredBoids, "min=0 max=800 step=1 group=Boid");
-
-	TwAddVarRW(pTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
-	TwAddVarRW(pTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
-	TwAddVarRW(pTweakBar, "Alignment",		TW_TYPE_FLOAT, &alignmentRadius,	"min=-50 max=100 step=0.5 group=Radius");
-
-	TwAddVarRW(pTweakBar, "Sep",			TW_TYPE_FLOAT, &separationModifier,	"min=0 max=5 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Coh",			TW_TYPE_FLOAT, &cohesionModifier,	"min=0 max=5 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Ali",			TW_TYPE_FLOAT, &alignmentModifier,	"min=0 max=5 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Max Speed",		TW_TYPE_FLOAT, &maxSpeed,			"min=0 max=50 step=0.1 group=Weight");
-	TwAddVarRW(pTweakBar, "Turn Force",		TW_TYPE_FLOAT, &maxForce,			"min=0 max=10 step=0.01 group=Weight");
-
-	TwAddVarRW(pTweakBar, "Num of Predators",TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
-	TwAddVarRW(pTweakBar, "Escape value",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Predators",		TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Escape Speed",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Radius",	TW_TYPE_FLOAT, &escapeRadius,		"min=-100 max=100 step=1 group=Predators");
 
-	TwAddVarRW(pTweakBar, "amplitude", TW_TYPE_FLOAT, &amplitude, "min=-100 max=100 step=0.1 group=Predators");
-	TwAddVarRW(pTweakBar, "Freq", TW_TYPE_FLOAT, &frequency, "min=-100 max=100 step=0.1 group=Predators");
+	TwAddVarRW(pTweakBar, "Amplitude",		TW_TYPE_FLOAT, &amplitude,			"min=-100 max=100 step=0.1 group=Predators");
+	TwAddVarRW(pTweakBar, "Frequency",		TW_TYPE_FLOAT, &frequency,			"min=-100 max=100 step=0.1 group=Predators");
 
-	//TwAddVarRW(pTweakBar, "Num of Predators", TW_TYPE_FLOAT, &desiredBoids, "min=0 max=250 step=1 group=Boid");
+	TwBar* oTweakBar;
+	oTweakBar = TwGetBarByName("Obstacle");
+
+	TwAddVarRW(oTweakBar, "Obstacles", TW_TYPE_FLOAT, &obstaclesDesired, "min=0 max=10 step=1 group=Obstacles");
+	TwAddVarRW(oTweakBar, "Spawn Location", TW_TYPE_DIR3D, &obstacleSpawn, "group=Obstacles");
+
 }
 
 BoidManager::~BoidManager()
@@ -76,10 +89,23 @@ void BoidManager::Tick(GameData * _GD)
 				boidsInScene--;
 			}
 
+			
+
 			//Tick & move every frame
 			(*it)->Tick(_GD);
 			moveBoid((*it), _GD);
 		}
+	}
+	for (list<Obstacle*>::iterator Oit = m_Obstacles.begin(); Oit != m_Obstacles.end(); ++Oit)
+	{
+		if (obstaclesDesired > obstaclesInScene)
+		{
+			(*Oit)->Spawn(Vector3::One, _GD, Vector3::Zero);
+			obstaclesInScene++;
+
+		}
+		(*Oit)->Tick(_GD);
+
 	}
 }
 
@@ -90,6 +116,11 @@ void BoidManager::Draw(DrawData * _DD)
 	{
 		if((*it)->isAlive())
 		(*it)->Draw(_DD);
+	}
+	for (list<Obstacle*>::iterator it = m_Obstacles.begin(); it != m_Obstacles.end(); ++it)
+	{
+		if ((*it)->isAlive())
+			(*it)->Draw(_DD);
 	}
 }
 
@@ -174,9 +205,9 @@ Vector3 BoidManager::seek(Vector3 _target, Vector3 _pos, Vector3 _vel)
 //escape from predators
 Vector3 BoidManager::escape(Boid * _boid)
 {
-	Vector3 predatorLocation = Vector3::Zero;
+	Vector3 repelLocation = Vector3::Zero;
 	int count = 0;
-
+	//check distance from predators
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
 		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) 
@@ -186,16 +217,34 @@ Vector3 BoidManager::escape(Boid * _boid)
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
 			if (distance > 0 && distance < escapeRadius * 10)
 			{
-				predatorLocation += (*it)->GetPos();
+				repelLocation += (*it)->GetPos();
 				count++;
 			}
 			
 		}
 	}
+	//check distance from obstacles
+	for (list<Obstacle*>::iterator Oit = m_Obstacles.begin(); Oit != m_Obstacles.end(); ++Oit)
+	{
+		if ((*Oit)->isAlive() && _boid->isAlive())
+		{
+			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*Oit)->GetPos());
+			if (distance > 0 && distance < escapeRadius * 10)
+			{
+				repelLocation += (*Oit)->GetPos();
+				count++;
+
+			}
+		}
+	}
+
+
+
+
 	if (count > 0)
 	{
-		return seek(predatorLocation, _boid->GetPos(), _boid->getVelocity());
-		predatorLocation /= count;
+		return seek(repelLocation, _boid->GetPos(), _boid->getVelocity());
+		repelLocation /= count;
 	}
 	else
 	{
