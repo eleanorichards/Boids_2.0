@@ -21,7 +21,15 @@ using namespace DirectX::SimpleMath;
 void TW_CALL RunCB(void *_game)
 {
 	Game* game = (Game*) _game;
-	game->set2D(true);
+	if (!game->get2D())
+	{
+		game->set2D(true);
+		
+	}
+	else
+	{
+		game->set2D(false);
+	}
 }
 
 Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance) 
@@ -117,10 +125,6 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	TwBar* pTweakBar;
 	pTweakBar = TwNewBar("Predator");
 
-	TwBar* oTweakBar;
-	oTweakBar = TwNewBar("Obstacle");
-
-
 	//add Boid Manager
 	pBoidManager = new BoidManager(810, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
@@ -151,7 +155,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.01f * Vector3::One);
 	m_GameObjects.push_back(terrain);
 
-	TwAddButton(pTweakBar, "2D", RunCB, this, "label=Room");
+	TwAddButton(pTweakBar, "Toggle 2D", RunCB, this, "group=Room");
 	
 
 };
@@ -333,11 +337,11 @@ void Game::Draw(ID3D11DeviceContext* _pd3dImmediateContext)
 void Game::set2D(bool _is2D)
 {
 	pBoidManager->set2D(_is2D);
-}
-
-
-
-;
+	if (is2D)
+		is2D = false;
+	else
+		is2D = true;
+};
 
 
 

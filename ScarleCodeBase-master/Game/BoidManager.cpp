@@ -21,7 +21,7 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* bTweakBar;
 	bTweakBar = TwGetBarByName("Boid");
 
-	TwAddVarRW(bTweakBar, "Boids",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=800 step=1");
+	TwAddVarRW(bTweakBar, "Boid num",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=800 step=1");
 
 	TwAddVarRW(bTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
 	TwAddVarRW(bTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
@@ -36,18 +36,16 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* pTweakBar;
 	pTweakBar = TwGetBarByName("Predator");
 
-	TwAddVarRW(pTweakBar, "Predators",		TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Predator num",		TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Speed",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Radius",	TW_TYPE_FLOAT, &escapeRadius,		"min=-100 max=100 step=1 group=Predators");
 
 	TwAddVarRW(pTweakBar, "Amplitude",		TW_TYPE_FLOAT, &amplitude,			"min=-100 max=100 step=0.1 group=Predators");
 	TwAddVarRW(pTweakBar, "Frequency",		TW_TYPE_FLOAT, &frequency,			"min=-100 max=100 step=0.1 group=Predators");
 
-	TwBar* oTweakBar;
-	oTweakBar = TwGetBarByName("Obstacle");
 
-	TwAddVarRW(oTweakBar, "Obstacles", TW_TYPE_FLOAT, &obstaclesDesired, "min=0 max=10 step=1 group=Obstacles");
-	TwAddVarRW(oTweakBar, "Spawn Location", TW_TYPE_DIR3D, &obstacleSpawn, "group=Obstacles");
+	TwAddVarRW(pTweakBar, "Obstacle num", TW_TYPE_FLOAT, &obstaclesDesired, "min=0 max=10 step=1 group=Obstacles");
+	TwAddVarRW(pTweakBar, "Spawn Location", TW_TYPE_DIR3D, &obstacleSpawn, "group=Obstacles");
 
 }
 
