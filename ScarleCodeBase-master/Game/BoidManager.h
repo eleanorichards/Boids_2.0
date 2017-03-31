@@ -32,9 +32,13 @@ public:
 	Vector3 wiggle(Boid* _boid, GameData * _GD);
 
 	//GETTERS
-	int getNumOfBoids() { return boidsInScene; }
+	int getNumOfBoids() { return boidsInScene; };
+	bool get2D() { return is2D; };
+	bool getArmyToggle() { return armySim; };
 
+	//SETTERS
 	void set2D(bool _is2D);
+	void setArmyToggle(bool _isArmySimOn);
 
 
 private:
@@ -56,9 +60,10 @@ private:
 	float escapeRadius = 20;
 
 	float alignmentModifier = 1;
-	float separationModifier = 1.1;
+	float separationModifier = 1.1f;
 	float cohesionModifier = 1;
 	float escapeModifier = 2.0f;
+	float predatorCohesionModifier = 1.5f;
 
 	float maxSpeed = 10.0f;
 	float maxForce = 0.1f;
@@ -80,4 +85,8 @@ private:
 	int min = -10;
 	int startMax = 50;
 	int startMin = -50;
+	
+	bool is2D = false;
+	bool armySim = false;
+
 };

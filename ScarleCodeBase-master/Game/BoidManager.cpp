@@ -5,6 +5,39 @@
 
 #include "AntTweakBar.h"
 
+//SET ARMY
+void TW_CALL RunCBARMY(void *_boidManager)
+{
+	BoidManager* pBoidManager = (BoidManager*) _boidManager;
+	if (!pBoidManager->getArmyToggle())
+	{
+		pBoidManager->setArmyToggle(true);
+		if (!pBoidManager->get2D())
+		{
+			pBoidManager->set2D(true);
+
+		}
+	}
+	else
+	{
+		pBoidManager->setArmyToggle(false);
+	}
+}
+
+//SET 2D
+void TW_CALL RunCB2D(void *_boidManager)
+{
+	BoidManager* pBoidManager = (BoidManager*)_boidManager;
+	if (!pBoidManager->get2D())
+	{
+		pBoidManager->set2D(true);
+
+	}
+	else
+	{
+		pBoidManager->set2D(false);
+	}
+}
 
 BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 {
@@ -19,9 +52,9 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	}
 
 	TwBar* bTweakBar;
-	bTweakBar = TwGetBarByName("Boid");
+	bTweakBar = TwGetBarByName("Boid Behaviour");
 
-	TwAddVarRW(bTweakBar, "Boid num",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=800 step=1");
+	TwAddVarRW(bTweakBar, "Boids",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=800 step=1");
 
 	TwAddVarRW(bTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
 	TwAddVarRW(bTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
@@ -36,7 +69,7 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* pTweakBar;
 	pTweakBar = TwGetBarByName("Predator");
 
-	TwAddVarRW(pTweakBar, "Predator num",		TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
+	TwAddVarRW(pTweakBar, "Predators",		TW_TYPE_FLOAT, &numOfPredators,		"min=0 max=10 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Speed",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Radius",	TW_TYPE_FLOAT, &escapeRadius,		"min=-100 max=100 step=1 group=Predators");
 
@@ -44,8 +77,11 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwAddVarRW(pTweakBar, "Frequency",		TW_TYPE_FLOAT, &frequency,			"min=-100 max=100 step=0.1 group=Predators");
 
 
-	TwAddVarRW(pTweakBar, "Obstacle num", TW_TYPE_FLOAT, &obstaclesDesired, "min=0 max=10 step=1 group=Obstacles");
-	TwAddVarRW(pTweakBar, "Spawn Location", TW_TYPE_DIR3D, &obstacleSpawn, "group=Obstacles");
+	TwAddVarRW(pTweakBar, "Obstacles",		TW_TYPE_FLOAT, &obstaclesDesired,	"min=0 max=10 step=1 group=Obstacles");
+	TwAddVarRW(pTweakBar, "Spawn Location", TW_TYPE_DIR3D, &obstacleSpawn,		"group=Obstacles");
+
+	TwAddButton(pTweakBar, "Army Sim", RunCBARMY, this, "group=Room");
+	TwAddButton(pTweakBar, "Toggle 2D", RunCB2D, this, "group=Room");
 
 }
 
@@ -68,7 +104,7 @@ void BoidManager::Tick(GameData * _GD)
 			}
 			if (desiredBoids > boidsInScene) //if normal boid added
 			{
-				(*it)->Spawn(0.5*Vector3::One, _GD, false);
+				(*it)->Spawn(0.8*Vector3::One, _GD, false);
 				boidsInScene++;
 			}
 		}
@@ -86,9 +122,6 @@ void BoidManager::Tick(GameData * _GD)
 				(*it)->SetAlive(false);
 				boidsInScene--;
 			}
-
-			
-
 			//Tick & move every frame
 			(*it)->Tick(_GD);
 			moveBoid((*it), _GD);
@@ -128,17 +161,21 @@ void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 {
 	if (_boid->isAlive() && !_boid->isPredator()) 
 	{
+		if (armySim)
+		{
+			cohesionModifier = 0.3f;
+			escapeModifier *= -0.9;
+		}
 		Vector3 coh = cohesion(_boid) * cohesionModifier;
 		Vector3 sep = separation(_boid) * separationModifier;
 		Vector3 ali = alignment(_boid) * alignmentModifier;
 
 		Vector3 esc = -escape(_boid) * escapeModifier;
-
 		_boid->setVelocity((_boid->getVelocity() + sep + coh + ali + esc)  /*+ (speedModifier * Vector3::One)*/);
 	}
 	else if (_boid->isAlive() && _boid->isPredator())
 	{
-		Vector3 coh = cohesion(_boid) * cohesionModifier;
+		Vector3 coh = cohesion(_boid) * predatorCohesionModifier;
 		Vector3 wig = wiggle(_boid, _GD);
 		_boid->setVelocity((_boid->getVelocity() + coh + wig)  /*+ (speedModifier * Vector3::One)*/);
 	}
@@ -162,8 +199,13 @@ Vector3 BoidManager::cohesion(Boid* _boid)
 				{
 					target += (*it)->GetPos();
 					count++;
+					if (_boid->isPredator() && count >= 10) // if predator is "surrounded"
+					{
+						_boid->SetAlive(false); //kill the predator
+					}
 				}
-				else if ((*it)->isPredator() && distance < 100 && !_boid->isPredator()) //if predator is too close to boid, EAT HIM
+				//if predator is too close to boid, EAT THE BOID
+				else if ((*it)->isPredator() && distance < 100 && !_boid->isPredator()) 
 				{
 					_boid->SetAlive(false);
 					desiredBoids--;
@@ -188,15 +230,14 @@ Vector3 BoidManager::cohesion(Boid* _boid)
 Vector3 BoidManager::seek(Vector3 _target, Vector3 _pos, Vector3 _vel)
 {
 	Vector3 desired = _target - _pos;
-	desired.Normalize();
-	desired *= maxSpeed;
+	desired.Normalize(); // set between 0-1
+	desired *= maxSpeed; // adjsutable in AntTweakBar
 	desired = XMVector3ClampLength(desired, 0.0f, maxSpeed);
 
 	Vector3 steer = desired - _vel;
 	steer = XMVector3ClampLength(steer, 0.0f, maxForce);
 
 	return steer;
-
 }
 
 
@@ -211,10 +252,11 @@ Vector3 BoidManager::escape(Boid * _boid)
 		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) 
 			&& !_boid->isPredator() && (*it)->isPredator())
 		{
-			
+			//if distance is less than the escape radius
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
 			if (distance > 0 && distance < escapeRadius * 10)
 			{
+				//add predator location to repel locations
 				repelLocation += (*it)->GetPos();
 				count++;
 			}
@@ -255,9 +297,8 @@ Vector3 BoidManager::wiggle(Boid * _boid, GameData * _GD)
 	//Vector3 wiggle = Vector3::Zero;
 	Vector3 wiggly = Vector3::Zero;
 
-	//wiggly.x = amplitude * sin(2 * XM_PI*frequency*_GD->m_dt);
+	//wiggly.z = _boid->getVelocity().z * amplitude * sin(2 * XM_PI*frequency*_GD->m_dt);
 
-	// = a * Mathf.Sin(2 * Mathf.Pi*freq*_GD->m_dt
 	return wiggly;
 }
 
@@ -269,10 +310,38 @@ void BoidManager::set2D(bool _is2D)
 	{
 		(*it)->set2D(_is2D);
 	}
+	if (is2D)
+		is2D = false;
+	else
+		is2D = true;
+}
+
+void BoidManager::setArmyToggle(bool _isArmySimOn)
+{
+	Vector3 startLocation = Vector3(0.0f, 0.0f, 10.0f);
+	numOfPredators = 5;
+	desiredBoids = 500;
+
+	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
+	{
+		//set up start locations
+		if (!(*it)->isPredator())
+		{
+			(*it)->SetPos(startLocation);
+			startLocation.z += 10.0f;
+			//tell each boid army is on so cohesion is turned off
+		}
+		(*it)->setArmyToggle(_isArmySimOn);
+	}
+
+	if (armySim)
+		armySim = false;
+	else
+		armySim = true;
 }
 
 
-//move away from nearby boids
+//move away from boids within separation radius
 Vector3 BoidManager::separation(Boid* _boid)
 {
 	Vector3 steer = Vector3::Zero;

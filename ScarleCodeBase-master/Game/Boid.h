@@ -20,6 +20,7 @@ public:
 	void setRotation();
 	void setColour(float r, float g, float b);
 	void set2D(bool _is2D) { is2D = _is2D; };
+	void setArmyToggle(bool _isArmySimOn);
 
 	//GETTERS
 	Vector3 getVelocity() { return m_vel; }
@@ -43,6 +44,7 @@ private:
 	bool m_alive;
 	bool is2D = false;
 	bool m_predator = false;
+	bool isArmySimOn = false;
 
 	int max = 100;
 	int min = 50;

@@ -44,8 +44,8 @@ public:
 
 	void Draw(ID3D11DeviceContext* _pd3dImmediateContext); //render the current game state
 	
-	void set2D(bool _is2D);
-	bool get2D() { return is2D; }
+	//void set2D(bool _is2D);
+	//bool get2D() { return is2D; }
 
 protected:
 	DWORD m_playTime; //amount of time since the game started
@@ -85,7 +85,7 @@ protected:
 	void PlayTick();
 	Vector3 initialLocation;
 
-	bool is2D = false;
+	
 
 };
 

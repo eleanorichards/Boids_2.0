@@ -187,4 +187,16 @@ void Boid::setColour(float r, float g, float b)
 	//m_vertices[1].Color = Color(r, g, b, 1.0f);
 }
 
+void Boid::setArmyToggle(bool _isArmySimOn)
+{
+	if (_isArmySimOn)
+	{
+		isArmySimOn = true;
+	}
+	else
+	{
+		isArmySimOn = false;
+	}
+}
+
 
