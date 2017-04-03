@@ -196,6 +196,7 @@ void GeometricPrimitive::Impl::Initialize(ID3D11DeviceContext* deviceContext, co
     CreateBuffer(device.Get(), vertices, D3D11_BIND_VERTEX_BUFFER, &mVertexBuffer);
     CreateBuffer(device.Get(), indices, D3D11_BIND_INDEX_BUFFER, &mIndexBuffer);
 
+
     mIndexCount = static_cast<UINT>( indices.size() );
 }
 

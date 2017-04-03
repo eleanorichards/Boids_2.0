@@ -73,6 +73,9 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwAddVarRW(pTweakBar, "Escape Speed",	TW_TYPE_FLOAT, &escapeModifier,		"min=-100 max=100 step=1 group=Predators");
 	TwAddVarRW(pTweakBar, "Escape Radius",	TW_TYPE_FLOAT, &escapeRadius,		"min=-100 max=100 step=1 group=Predators");
 
+	TwAddVarRW(pTweakBar, "Herder", TW_TYPE_FLOAT, &numOfHerders, "min=0 max=1 step=1 group=Predators");
+
+
 	TwAddVarRW(pTweakBar, "Amplitude",		TW_TYPE_FLOAT, &amplitude,			"min=-100 max=100 step=0.1 group=Predators");
 	TwAddVarRW(pTweakBar, "Frequency",		TW_TYPE_FLOAT, &frequency,			"min=-100 max=100 step=0.1 group=Predators");
 
@@ -99,13 +102,18 @@ void BoidManager::Tick(GameData * _GD)
 		{
 			if(numOfPredators > predatorsInScene) //if predator added
 			{
-				(*it)->Spawn(2*Vector3::One, _GD, true);
+				(*it)->Spawn(2*Vector3::One, _GD, true, false);
 				predatorsInScene++;
 			}
 			if (desiredBoids > boidsInScene) //if normal boid added
 			{
-				(*it)->Spawn(0.8*Vector3::One, _GD, false);
+				(*it)->Spawn(0.8*Vector3::One, _GD, false, false);
 				boidsInScene++;
+			}
+			if ( numOfHerders > herdersInScene) //if herder added
+			{
+				(*it)->Spawn(0.8*Vector3::One, _GD, false, true);
+				herdersInScene++;
 			}
 		}
 		else if ((*it)->isAlive())
@@ -122,7 +130,17 @@ void BoidManager::Tick(GameData * _GD)
 				(*it)->SetAlive(false);
 				boidsInScene--;
 			}
+			if (herdersInScene > numOfHerders && !(*it)->isHerder()) //if normal boid taken out
+			{
+				(*it)->SetAlive(false);
+				herdersInScene--;
+			}
 			//Tick & move every frame
+			//if (herdersInScene == 1)
+			//{
+			
+
+			//}
 			(*it)->Tick(_GD);
 			moveBoid((*it), _GD);
 		}
@@ -159,7 +177,7 @@ void BoidManager::Draw(DrawData * _DD)
 //Predators only apply cohesion
 void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 {
-	if (_boid->isAlive() && !_boid->isPredator()) 
+	if (_boid->isAlive() && !_boid->isPredator() && !_boid->isHerder()) 
 	{
 		if (armySim)
 		{
@@ -173,13 +191,16 @@ void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 		Vector3 esc = -escape(_boid) * escapeModifier;
 		_boid->setVelocity((_boid->getVelocity() + sep + coh + ali + esc)  /*+ (speedModifier * Vector3::One)*/);
 	}
-	else if (_boid->isAlive() && _boid->isPredator())
+	else if (_boid->isAlive() && _boid->isPredator() && !_boid->isHerder())
 	{
 		Vector3 coh = cohesion(_boid) * predatorCohesionModifier;
 		Vector3 wig = wiggle(_boid, _GD);
 		_boid->setVelocity((_boid->getVelocity() + coh + wig)  /*+ (speedModifier * Vector3::One)*/);
 	}
-
+	else if (_boid->isAlive() && !_boid->isPredator() && _boid->isHerder())
+	{
+		movePlayer(_GD, _boid);
+	}
 }
 
 //find the centre of mass of other boids
@@ -195,7 +216,7 @@ Vector3 BoidManager::cohesion(Boid* _boid)
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
 			if (distance > 0 && distance < cohesionRadius * 10)
 			{
-				if (!(*it)->isPredator())
+				if (!(*it)->isPredator() && !(*it)->isHerder())
 				{
 					target += (*it)->GetPos();
 					count++;
@@ -250,7 +271,8 @@ Vector3 BoidManager::escape(Boid * _boid)
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
 		if ((*it)->isAlive() && _boid->isAlive() && _boid != (*it) 
-			&& !_boid->isPredator() && (*it)->isPredator())
+			&& !_boid->isPredator() && !_boid->isHerder() && (*it)->isPredator() 
+			|| (*it)->isHerder())
 		{
 			//if distance is less than the escape radius
 			float distance = Vector3::DistanceSquared(_boid->GetPos(), (*it)->GetPos());
@@ -277,10 +299,6 @@ Vector3 BoidManager::escape(Boid * _boid)
 			}
 		}
 	}
-
-
-
-
 	if (count > 0)
 	{
 		return seek(repelLocation, _boid->GetPos(), _boid->getVelocity());
@@ -325,7 +343,7 @@ void BoidManager::setArmyToggle(bool _isArmySimOn)
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
 	{
 		//set up start locations
-		if (!(*it)->isPredator())
+		if (!(*it)->isPredator() && !(*it)->isHerder())
 		{
 			(*it)->SetPos(startLocation);
 			startLocation.z += 10.0f;
@@ -338,6 +356,36 @@ void BoidManager::setArmyToggle(bool _isArmySimOn)
 		armySim = false;
 	else
 		armySim = true;
+}
+
+void BoidManager::movePlayer(GameData * _GD, Boid* _boid)
+{
+	Vector3 forwardMove = 0.1f * Vector3::Forward;
+	//Matrix rotMove = Matrix::CreateRotationY(_boid->GetYaw());
+	//forwardMove = Vector3::Transform(forwardMove, rotMove);
+
+	if (_GD->m_keyboardState[DIK_UP] & 0x80)
+	{
+		_boid->setVelocity(_boid->getVelocity() + forwardMove);
+	}
+	if (_GD->m_keyboardState[DIK_DOWN] & 0x80)
+	{
+		_boid->setVelocity(_boid->getVelocity() - forwardMove);
+	}	
+
+	//change orientation of player
+	float rotSpeed = 10.0f * _GD->m_dt;
+	float _yaw = _boid->GetYaw();
+	if (_GD->m_keyboardState[DIK_LEFT] & 0x80)
+	{
+		_yaw += rotSpeed;
+		_boid->SetYaw(_yaw);
+	}
+	if (_GD->m_keyboardState[DIK_RIGHT] & 0x80)
+	{
+		_yaw -= rotSpeed;
+		_boid->SetYaw(_yaw);
+	}
 }
 
 

@@ -9,7 +9,7 @@ public:
 	Boid(ID3D11Device* _pd3dDevice);
 	~Boid();
 
-	void Spawn(Vector3 _scale, GameData* _GD, bool _isPredator);
+	void Spawn(Vector3 _scale, GameData* _GD, bool _isPredator, bool _isPlayer);
 
 	virtual void Tick(GameData* _GD) override;
 	virtual void Draw(DrawData* _DD) override;
@@ -27,7 +27,7 @@ public:
 	
 	bool isAlive() { return m_alive; }
 	bool isPredator() { return m_predator; }
-
+	bool isHerder() { return m_herder; };
 
 
 private:
@@ -45,6 +45,7 @@ private:
 	bool is2D = false;
 	bool m_predator = false;
 	bool isArmySimOn = false;
+	bool m_herder = false;
 
 	int max = 100;
 	int min = 50;

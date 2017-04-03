@@ -31,6 +31,8 @@ public:
 
 	Vector3 wiggle(Boid* _boid, GameData * _GD);
 
+	void movePlayer(GameData * _GD, Boid* _boid);
+
 	//GETTERS
 	int getNumOfBoids() { return boidsInScene; };
 	bool get2D() { return is2D; };
@@ -39,7 +41,6 @@ public:
 	//SETTERS
 	void set2D(bool _is2D);
 	void setArmyToggle(bool _isArmySimOn);
-
 
 private:
 	list<Boid*> m_Boids;
@@ -73,10 +74,12 @@ private:
 
 	float boidsInScene = 0;
 	float predatorsInScene = 0;
+	float herdersInScene = 0;
 	float desiredBoids = 0;
 	float boidContrast = 0.0f;
 	float speedModifier = 0.0f;
 	float numOfPredators = 0.0f;
+	float numOfHerders = 0.0f;
 
 	float obstaclesInScene = 0;
 	float obstaclesDesired = 0;

@@ -110,7 +110,7 @@ Boid::~Boid()
 {
 }
 
-void Boid::Spawn(Vector3 _scale, GameData* _GD, bool _isPredator)
+void Boid::Spawn(Vector3 _scale, GameData* _GD, bool _isPredator, bool _isHerder)
 {
 	initialDirection = Vector3(((float)(rand() % max) - min), ((float)(rand() % max) - min), (((float)(rand() % max) - min)))*0.1;
 	initialLocation = Vector3((float)(rand() % (startMax - startMin + 1) + startMin),
@@ -122,6 +122,7 @@ void Boid::Spawn(Vector3 _scale, GameData* _GD, bool _isPredator)
 	m_scale = _scale;
 	m_vel = initialDirection;
 	m_predator = _isPredator;
+	m_herder = _isHerder;
 }
 
 void Boid::Tick(GameData * _GD)
@@ -142,8 +143,6 @@ void Boid::Tick(GameData * _GD)
 			m_pos += ((m_vel)* _GD->m_dt);
 		}
 		setRotation();
-
-		
 	}
 }
 
@@ -178,8 +177,6 @@ void Boid::setRotation()
 
 void Boid::setColour(float r, float g, float b)
 {
-	m_vertices[1].Color.AdjustContrast(r);
-	m_vertices[2].Color.AdjustContrast(r);
 	m_vertices[3].Color.AdjustContrast(r);
 	m_vertices[4].Color.AdjustContrast(r);
 	m_vertices[5].Color.AdjustContrast(r);
