@@ -112,7 +112,7 @@ void BoidManager::Tick(GameData * _GD)
 			}
 			if ( numOfHerders > herdersInScene) //if herder added
 			{
-				(*it)->Spawn(0.8*Vector3::One, _GD, false, true);
+				(*it)->Spawn(2.5*Vector3::One, _GD, false, true);
 				herdersInScene++;
 			}
 		}
@@ -191,15 +191,16 @@ void BoidManager::moveBoid(Boid* _boid, GameData * _GD)
 		Vector3 esc = -escape(_boid) * escapeModifier;
 		_boid->setVelocity((_boid->getVelocity() + sep + coh + ali + esc)  /*+ (speedModifier * Vector3::One)*/);
 	}
-	else if (_boid->isAlive() && _boid->isPredator() && !_boid->isHerder())
+	if (_boid->isAlive() && _boid->isPredator() && !_boid->isHerder())
 	{
 		Vector3 coh = cohesion(_boid) * predatorCohesionModifier;
 		Vector3 wig = wiggle(_boid, _GD);
 		_boid->setVelocity((_boid->getVelocity() + coh + wig)  /*+ (speedModifier * Vector3::One)*/);
 	}
-	else if (_boid->isAlive() && !_boid->isPredator() && _boid->isHerder())
+	if (_boid->isAlive() && !_boid->isPredator() && _boid->isHerder())
 	{
-		movePlayer(_GD, _boid);
+		Vector3 mov = movePlayer(_GD, _boid);
+		_boid->setVelocity(_boid->getVelocity() + mov);
 	}
 }
 
@@ -220,7 +221,7 @@ Vector3 BoidManager::cohesion(Boid* _boid)
 				{
 					target += (*it)->GetPos();
 					count++;
-					if (_boid->isPredator() && count >= 10) // if predator is "surrounded"
+					if (_boid->isPredator() && count >= 15) // if predator is "surrounded"
 					{
 						_boid->SetAlive(false); //kill the predator
 					}
@@ -346,7 +347,8 @@ void BoidManager::setArmyToggle(bool _isArmySimOn)
 		if (!(*it)->isPredator() && !(*it)->isHerder())
 		{
 			(*it)->SetPos(startLocation);
-			startLocation.z += 10.0f;
+			startLocation.z += 20.0f;
+			startLocation.x += 20.0f;
 			//tell each boid army is on so cohesion is turned off
 		}
 		(*it)->setArmyToggle(_isArmySimOn);
@@ -358,34 +360,45 @@ void BoidManager::setArmyToggle(bool _isArmySimOn)
 		armySim = true;
 }
 
-void BoidManager::movePlayer(GameData * _GD, Boid* _boid)
+Vector3 BoidManager::movePlayer(GameData * _GD, Boid* _boid)
 {
-	Vector3 forwardMove = 0.1f * Vector3::Forward;
-	//Matrix rotMove = Matrix::CreateRotationY(_boid->GetYaw());
-	//forwardMove = Vector3::Transform(forwardMove, rotMove);
-
-	if (_GD->m_keyboardState[DIK_UP] & 0x80)
+	Vector3 target = Vector3::Zero;
+	float incrementor = 50;
+	//WORKS MOST EFFECTIVELY IN 2D
+	if (_GD->m_keyboardState[DIK_MINUS] & 0x80)//RAISE
 	{
-		_boid->setVelocity(_boid->getVelocity() + forwardMove);
+		target.y -= incrementor;
 	}
-	if (_GD->m_keyboardState[DIK_DOWN] & 0x80)
+	if (_GD->m_keyboardState[DIK_ADD] & 0x80)//LOWER
 	{
-		_boid->setVelocity(_boid->getVelocity() - forwardMove);
+		target.y += incrementor;
+	}
+	if (_GD->m_keyboardState[DIK_UP] & 0x80)//UP
+	{
+		target.z -= incrementor;
+	}
+	if (_GD->m_keyboardState[DIK_DOWN] & 0x80)//DOWN
+	{
+		target.z += incrementor;
 	}	
+	if (_GD->m_keyboardState[DIK_LEFT] & 0x80)//LEFT
+	{
+		target.x -= incrementor;
+	}
+	if (_GD->m_keyboardState[DIK_RIGHT] & 0x80)//RIGHT
+	{
+		target.x += incrementor;
+	}
+	//similar to capping of ali, coh and sep. 
+	if (target != Vector3::Zero)
+	{
+		target.Normalize();
+		target *= (maxSpeed + 10);
+		target -= _boid->getVelocity();
+		target = XMVector3ClampLength(target, 0.0f, maxForce);
+	}
 
-	//change orientation of player
-	float rotSpeed = 10.0f * _GD->m_dt;
-	float _yaw = _boid->GetYaw();
-	if (_GD->m_keyboardState[DIK_LEFT] & 0x80)
-	{
-		_yaw += rotSpeed;
-		_boid->SetYaw(_yaw);
-	}
-	if (_GD->m_keyboardState[DIK_RIGHT] & 0x80)
-	{
-		_yaw -= rotSpeed;
-		_boid->SetYaw(_yaw);
-	}
+	return target;
 }
 
 

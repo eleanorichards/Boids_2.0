@@ -31,7 +31,7 @@ public:
 
 	Vector3 wiggle(Boid* _boid, GameData * _GD);
 
-	void movePlayer(GameData * _GD, Boid* _boid);
+	Vector3 movePlayer(GameData * _GD, Boid* _boid);
 
 	//GETTERS
 	int getNumOfBoids() { return boidsInScene; };

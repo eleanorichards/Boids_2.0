@@ -30,7 +30,6 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 
 	if (!m_predator)
 	{
-
 		//Vert bits
 		//X tri
 		m_vertices[vert].Color = Color(0.0f, 1.0f, 0.0f, 1.0f);
