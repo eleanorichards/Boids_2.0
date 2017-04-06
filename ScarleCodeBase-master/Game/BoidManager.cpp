@@ -54,7 +54,7 @@ BoidManager::BoidManager(int _numOfBoids, ID3D11Device * _pd3dDevice)
 	TwBar* bTweakBar;
 	bTweakBar = TwGetBarByName("Boid Behaviour");
 
-	TwAddVarRW(bTweakBar, "Boids",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=800 step=1");
+	TwAddVarRW(bTweakBar, "Boids",			TW_TYPE_FLOAT, &desiredBoids,		"min=0 max=900 step=1");
 
 	TwAddVarRW(bTweakBar, "Separation",		TW_TYPE_FLOAT, &separationRadius,	"min=-50 max=100 step=0.5 group=Radius");
 	TwAddVarRW(bTweakBar, "Cohesion",		TW_TYPE_FLOAT, &cohesionRadius,		"min=-50 max=100 step=0.5 group=Radius");
@@ -135,12 +135,6 @@ void BoidManager::Tick(GameData * _GD)
 				(*it)->SetAlive(false);
 				herdersInScene--;
 			}
-			//Tick & move every frame
-			//if (herdersInScene == 1)
-			//{
-			
-
-			//}
 			(*it)->Tick(_GD);
 			moveBoid((*it), _GD);
 		}
@@ -313,10 +307,9 @@ Vector3 BoidManager::escape(Boid * _boid)
 
 Vector3 BoidManager::wiggle(Boid * _boid, GameData * _GD)
 {
-	//Vector3 wiggle = Vector3::Zero;
 	Vector3 wiggly = Vector3::Zero;
 
-	//wiggly.z = _boid->getVelocity().z * amplitude * sin(2 * XM_PI*frequency*_GD->m_dt);
+	wiggly.z = _boid->getVelocity().z * amplitude * sin(2 * XM_PI*frequency*_GD->m_dt);
 
 	return wiggly;
 }
@@ -338,7 +331,7 @@ void BoidManager::set2D(bool _is2D)
 void BoidManager::setArmyToggle(bool _isArmySimOn)
 {
 	Vector3 startLocation = Vector3(0.0f, 0.0f, 10.0f);
-	numOfPredators = 5;
+	numOfPredators = 10;
 	desiredBoids = 500;
 
 	for (list<Boid*>::iterator it = m_Boids.begin(); it != m_Boids.end(); it++)
@@ -347,8 +340,8 @@ void BoidManager::setArmyToggle(bool _isArmySimOn)
 		if (!(*it)->isPredator() && !(*it)->isHerder())
 		{
 			(*it)->SetPos(startLocation);
-			startLocation.z += 20.0f;
-			startLocation.x += 20.0f;
+			startLocation.z += 10.0f;
+			//startLocation.x += 10.0f;
 			//tell each boid army is on so cohesion is turned off
 		}
 		(*it)->setArmyToggle(_isArmySimOn);

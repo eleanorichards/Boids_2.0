@@ -18,7 +18,7 @@ public:
 	void SetAlive(bool isAlive);
 	void setVelocity(Vector3 velocity);
 	void setRotation();
-	void setColour(float r, float g, float b);
+	//void setColour(float r, float g, float b);
 	void set2D(bool _is2D) { is2D = _is2D; };
 	void setArmyToggle(bool _isArmySimOn);
 
@@ -51,9 +51,7 @@ private:
 	int min = 50;
 
 	float boxSize = 100;
-	float accelerationLimit = 10;
 	float speed = 1;
-	float colour = 0.0f;
 	int startMax = 50;
 	int startMin = -50;
 

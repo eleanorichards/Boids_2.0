@@ -95,13 +95,6 @@ Boid::Boid(ID3D11Device * _pd3dDevice)
 	
 	//set m_up
 	m_up = Vector3::Transform(Vector3::Up, m_fudge.Invert() * m_worldMat) - m_pos;
-
-	//TwBar* pTweakBar;
-	//pTweakBar = TwGetBarByName("Boid Manager");
-	//APPLE
-	//TwAddVarRW(pTweakBar, "Box size", TW_TYPE_FLOAT, &boxSize, "min=10 max=250 step=1 group=Room");	
-	//TwAddVarRW(pTweakBar, "Colour", TW_TYPE_FLOAT, &colour, "min=0 max=1 step=0.1 group=Boids");
-
 	
 }
 
@@ -174,14 +167,13 @@ void Boid::setRotation()
 
 }
 
-void Boid::setColour(float r, float g, float b)
-{
-	m_vertices[3].Color.AdjustContrast(r);
-	m_vertices[4].Color.AdjustContrast(r);
-	m_vertices[5].Color.AdjustContrast(r);
-	m_vertices[6].Color.AdjustContrast(r);
-	//m_vertices[1].Color = Color(r, g, b, 1.0f);
-}
+//void Boid::setColour(float r, float g, float b)
+//{
+//	m_vertices[3].Color.AdjustContrast(r);
+//	m_vertices[4].Color.AdjustContrast(r);
+//	m_vertices[5].Color.AdjustContrast(r);
+//	m_vertices[6].Color.AdjustContrast(r);
+//}
 
 void Boid::setArmyToggle(bool _isArmySimOn)
 {

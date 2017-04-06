@@ -53,7 +53,7 @@ private:
 	Vector3 randomDirection;
 
 	Vector3 obstacleSpawn;
-	//Vector3 wiggly = Vector3::Zero;
+
 	//alignment and cohesion radius should be similar/the same
 	float alignmentRadius = 20;
 	float cohesionRadius = 20;
@@ -76,7 +76,6 @@ private:
 	float predatorsInScene = 0;
 	float herdersInScene = 0;
 	float desiredBoids = 0;
-	float boidContrast = 0.0f;
 	float speedModifier = 0.0f;
 	float numOfPredators = 0.0f;
 	float numOfHerders = 0.0f;

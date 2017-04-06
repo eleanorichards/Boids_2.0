@@ -114,7 +114,7 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	pTweakBar = TwNewBar("Predator");
 
 	//add Boid Manager
-	pBoidManager = new BoidManager(810, _pd3dDevice);
+	pBoidManager = new BoidManager(910, _pd3dDevice);
 	m_GameObjects.push_back(pBoidManager);
 
 	//add a secondary camera
@@ -131,9 +131,6 @@ Game::Game(ID3D11Device* _pd3dDevice, HWND _hWnd, HINSTANCE _hInstance)
 	//add random content to show the various what you've got here
 	Terrain* terrain = new Terrain("table.cmo", _pd3dDevice, m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.01f * Vector3::One);
 	m_GameObjects.push_back(terrain);
-
-	
-
 };
 
 
